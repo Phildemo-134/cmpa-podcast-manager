@@ -169,120 +169,55 @@ Transcription {
 
 ### 🚀 Plan de Développement Détaillé
 
-#### Phase 0 : Préparation de l'Environnement (1-2 jours)
-- [ ] **Configuration environnement local**
-  - Installation PostgreSQL et Redis localement
-  - Configuration des variables d'environnement
-  - Setup des comptes Supabase (gratuit pour commencer)
-- [ ] **Setup de la base de données**
-  - Configuration Supabase
-  - Setup Drizzle ORM
-  - Création des schémas de base de données (User, Episode, Transcription)
-
 #### Phase 1 : Fondations (1-2 semaines)
-- [ ] **Authentification**
-  - Intégration Supabase Auth
-  - Pages de connexion/inscription
-  - Middleware de protection des routes
-- [ ] **Design System & UI Foundation**
-  - Création des composants UI de base (Button, Input, Card, etc.)
-  - Configuration Tailwind avec palette sobre et professionnelle
-  - Layout principal et navigation
+  - [ ] Initialiser et configurer le projet Next.js
+  - [ ] Concevoir et implémenter le schéma de base de données
+  - [ ] Mettre en place l'authentification utilisateur de base
+  - [ ] Développer le système d'upload de fichiers audio
+  - [ ] Créer l'interface utilisateur de gestion des épisodes
+  - [ ] Intégrer Stripe pour la gestion des paiements
+  - [ ] Implémenter la gestion des abonnements
 
-#### Phase 2 : Core Features (2-3 semaines)
-- [ ] **Gestion des Épisodes**
-  - Interface CRUD pour les épisodes
-  - Dashboard avec liste des épisodes
-  - Upload de fichiers audio (stockage local temporaire)
-- [ ] **Services de Traitement (avec Mocks)**
-  - Service de transcription avec données simulées
-  - Service de génération de contenu avec templates
-  - Système de statuts de traitement
-- [ ] **Interface de Détail**
-  - Page de détail d'épisode
-  - Affichage du contenu généré
-  - Interface d'édition du contenu
+#### Phase 2 : Développement de la pipeline IA (2-3 semaines)
+  - [ ] Intégrer les services de transcription audio
+  - [ ] Développer le système d'amélioration automatique des transcriptions
+  - [ ] Implémenter l'extraction automatique des sujets et timestamps
+  - [ ] Mettre en place la gestion d'erreurs et les fonctionnalités de retry
+  - [ ] Créer le système de suivi des statuts de traitement
+  - [ ] Développer l'interface d'édition du contenu généré
 
-#### Phase 3 : Intégrations Réelles (1-2 semaines)
-- [ ] **APIs IA**
-  - Intégration Deepgram pour la transcription
-  - Intégration Claude 3.5 Sonnet pour la génération
-  - Stockage AWS S3 pour les fichiers audio
-- [ ] **Optimisations & Polish**
-  - Gestion d'erreurs robuste
-  - Loading states et feedback utilisateur
-  - Tests et validation
+#### Phase 3 : Génération de contenu (1-2 semaines)
+  - [ ] Développer la génération de descriptions spécifiques par plateforme :
+       - Descriptions optimisées pour blog
+       - Descriptions adaptées à YouTube
+       - Descriptions formatées pour Spotify
+  - [ ] Implémenter la génération de publications pour réseaux sociaux
+  - [ ] Créer les fonctionnalités de prévisualisation et d'édition
+  - [ ] Mettre en place le stockage et la gestion du contenu généré
 
-#### Phase 4 : Fonctionnalités Avancées (2-3 semaines)
-- [ ] **Système d'abonnement**
-  - Intégration Stripe
-  - Gestion des plans tarifaires
-  - Dashboard d'administration
-- [ ] **Contenu réseaux sociaux**
-  - Génération posts Twitter/LinkedIn
-  - Templates personnalisables
-  - Export multi-formats
-- [ ] **Analytics & Performance**
-  - Métriques utilisateur
-  - Optimisations performance
-  - Monitoring et alertes
+#### Phase 4 : Intégration aux plateformes (1-2 semaines)
+  - [ ] Intégrer l'authentification OAuth pour les réseaux sociaux
+  - [ ] Développer les fonctionnalités de publication automatique sur X/Twitter
+  - [ ] Implémenter la publication automatique sur LinkedIn
+  - [ ] Créer le système de suivi des statuts de publication
+  - [ ] Mettre en place la gestion d'erreurs pour les publications
 
-### 🎯 Étapes de Développement Ordonnées
+#### Phase 5 : Finalisation et lancement (1 semaine)
+  - [ ] Développer le tableau de bord utilisateur complet
+  - [ ] Implémenter la période d'essai gratuit de 7 jours
+  - [ ] Tester et valider le parcours de paiement complet
+  - [ ] Améliorer les messages d'erreur et l'expérience utilisateur
+  - [ ] Optimiser les performances de l'application
+  - [ ] Préparer et effectuer le déploiement en production
 
-#### Étape 1 : Configuration de l'environnement
-```bash
-# Installation des dépendances système
-brew install postgresql redis
+#### Phase 6 : Post-lancement et amélioration continue
+  - [ ] Collecter et analyser les retours des premiers utilisateurs
+  - [ ] Corriger les bugs identifiés et implémenter les améliorations
+  - [ ] Surveiller et analyser les performances de l'application
+  - [ ] Intégrer les outils d'analytics et de monitoring
+  - [ ] Optimiser continuellement les conversions et la rétention
+  - [ ] Planifier et développer les fonctionnalités futures
 
-# Configuration Supabase
-# Création du projet sur supabase.com
-# Configuration des variables d'environnement
-```
-
-#### Étape 2 : Setup de la base de données
-- Configuration Drizzle ORM
-- Création des migrations initiales
-- Seed de données de test
-
-#### Étape 3 : Authentification Supabase
-- Configuration du client Supabase
-- Création des pages auth
-- Middleware de protection
-
-#### Étape 4 : Design System
-- Composants UI de base
-- Palette de couleurs professionnelle
-- Layout responsive
-
-#### Étape 5 : CRUD Épisodes
-- Modèles de données
-- API routes Next.js
-- Interface utilisateur
-
-#### Étape 6 : Upload de fichiers
-- Configuration multer/formidable
-- Validation des fichiers audio
-- Stockage temporaire local
-
-#### Étape 7 : Services de traitement (Mock)
-- Service de transcription simulé
-- Générateur de contenu avec templates
-- Queue de traitement
-
-#### Étape 8 : Interface de détail
-- Page d'épisode complète
-- Affichage du contenu généré
-- Édition inline
-
-#### Étape 9 : Intégrations IA réelles
-- API Deepgram
-- API Claude 3.5 Sonnet
-- Gestion des erreurs et retry
-
-#### Étape 10 : Polish & Tests
-- Tests unitaires et d'intégration
-- Optimisations performance
-- Documentation
 
 ### 🧪 Tests & Qualité
 
