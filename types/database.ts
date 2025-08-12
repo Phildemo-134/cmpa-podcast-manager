@@ -46,6 +46,8 @@ export interface Database {
           error_message: string | null
           timestamps: string | null
           video_url: string | null
+          s3_key: string | null
+          s3_bucket: string | null
           created_at: string
           updated_at: string
         }
@@ -61,6 +63,8 @@ export interface Database {
           error_message?: string | null
           timestamps?: string | null
           video_url?: string | null
+          s3_key?: string | null
+          s3_bucket?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -76,6 +80,8 @@ export interface Database {
           error_message?: string | null
           timestamps?: string | null
           video_url?: string | null
+          s3_key?: string | null
+          s3_bucket?: string | null
           created_at?: string
           updated_at?: string
         }

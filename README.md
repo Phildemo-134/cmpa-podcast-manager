@@ -168,13 +168,13 @@ Transcription {
 
 ### 🚀 Plan de Développement Détaillé
 
-#### Phase 1 : Fondations (1-2 semaines) ✅ COMPLÉTÉE
+#### Phase 1 : Fondations (1-2 semaines) 
   - [x] Initialiser le projet Next.js
   - [x] Collecter les clés API
-  - [x] Concevoir et implémenter le schéma de base de données
-  - [x] Mettre en place l'authentification utilisateur de base
-  - [x] Développer le système d'upload de fichiers audio
-  - [x] Créer l'interface utilisateur de gestion des épisodes
+  - [ ] Concevoir et implémenter le schéma de base de données
+  - [ ] Mettre en place l'authentification utilisateur de base
+  - [ ] Développer le système d'upload de fichiers audio
+  - [ ] Créer l'interface utilisateur de gestion des épisodes
 
 
 #### Phase 2 : Développement de la pipeline IA (2-3 semaines)
@@ -280,11 +280,14 @@ npm run dev
 DATABASE_URL="postgresql://..."
 REDIS_URL="redis://..."
 
+# AWS S3 (pour le stockage des fichiers audio)
+AWS_ACCESS_KEY_ID="votre_access_key"
+AWS_SECRET_ACCESS_KEY="votre_secret_key"
+AWS_S3_BUCKET="votre_bucket_name"
+AWS_REGION="us-east-1"
+
 # APIs externes
 ANTHROPIC_API_KEY="..."
-AWS_ACCESS_KEY_ID="..."
-AWS_SECRET_ACCESS_KEY="..."
-AWS_S3_BUCKET="..."
 
 # Paiements
 STRIPE_SECRET_KEY="sk_..."

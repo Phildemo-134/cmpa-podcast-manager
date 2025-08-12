@@ -88,51 +88,38 @@ export function AudioUpload() {
     setUploadedFiles(prev => prev.filter(file => file.id !== id))
   }
 
-  const uploadToSupabase = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Math.random().toString(36).substr(2, 9)}.${fileExt}`
-    const filePath = `audio/${fileName}`
+  const uploadToS3 = async (file: File): Promise<{ episode: any }> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('title', title || file.name.replace(/\.[^/.]+$/, ''))
+    formData.append('description', description || '')
+    formData.append('timestamps', timestamps || '')
+    formData.append('videoUrl', videoUrl || '')
 
-    const { error: uploadError } = await supabase.storage
-      .from('podcast-audio')
-      .upload(filePath, file)
-
-    if (uploadError) {
-      throw new Error(`Erreur d'upload: ${uploadError.message}`)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) {
+      throw new Error('Session utilisateur non trouvée')
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('podcast-audio')
-      .getPublicUrl(filePath)
+    const response = await fetch('/api/upload-audio', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: formData,
+    })
 
-    return publicUrl
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Erreur lors de l\'upload')
+    }
+
+    const result = await response.json()
+    return result
   }
 
-  const createEpisode = async (audioUrl: string, file: File) => {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) throw new Error('Utilisateur non connecté')
-
-    const { data: episode, error } = await supabase
-      .from('episodes')
-      .insert([
-        {
-          user_id: user.id,
-          title: title || file.name.replace(/\.[^/.]+$/, ''),
-          description: description || null,
-          audio_file_url: audioUrl,
-          file_size: file.size,
-          timestamps: timestamps || null,
-          video_url: videoUrl || null,
-          status: 'uploading'
-        }
-      ])
-      .select()
-      .single()
-
-    if (error) throw new Error(`Erreur création épisode: ${error.message}`)
-    return episode
-  }
+  // Cette fonction n'est plus nécessaire car l'épisode est créé côté serveur
+  // lors de l'upload S3
 
   const handleUpload = async () => {
     if (!title.trim() || uploadedFiles.length === 0) {
@@ -157,11 +144,8 @@ export function AudioUpload() {
           continue
         }
 
-        // Upload to Supabase storage
-        const audioUrl = await uploadToSupabase(uploadedFile.file)
-        
-        // Create episode in database
-        const episode = await createEpisode(audioUrl, uploadedFile.file)
+        // Upload to S3 via API
+        const result = await uploadToS3(uploadedFile.file)
         
         // Update file status
         setUploadedFiles(prev => 

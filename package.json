@@ -12,11 +12,14 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:redis": "npx tsx lib/test-redis.ts",
+    "test:s3": "npx tsx lib/test-s3.ts",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
-    "db:init": "./scripts/init-db.sh"
+    "db:init": "./scripts/init-db.sh",
+    "s3:setup": "./scripts/setup-s3.sh",
+    "s3:test": "npx tsx lib/test-s3.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.59.0",
