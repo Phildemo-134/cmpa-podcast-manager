@@ -168,15 +168,14 @@ Transcription {
 
 ### 🚀 Plan de Développement Détaillé
 
-#### Phase 1 : Fondations (1-2 semaines)
+#### Phase 1 : Fondations (1-2 semaines) ✅ COMPLÉTÉE
   - [x] Initialiser le projet Next.js
   - [x] Collecter les clés API
-  - [ ] Concevoir et implémenter le schéma de base de données
-  - [ ] Mettre en place l'authentification utilisateur de base
-  - [ ] Développer le système d'upload de fichiers audio
-  - [ ] Créer l'interface utilisateur de gestion des épisodes
-  - [ ] Intégrer Stripe pour la gestion des paiements
-  - [ ] Implémenter la gestion des abonnements
+  - [x] Concevoir et implémenter le schéma de base de données
+  - [x] Mettre en place l'authentification utilisateur de base
+  - [x] Développer le système d'upload de fichiers audio
+  - [x] Créer l'interface utilisateur de gestion des épisodes
+
 
 #### Phase 2 : Développement de la pipeline IA (2-3 semaines)
   - [ ] Intégrer les services de transcription audio
@@ -209,6 +208,8 @@ Transcription {
   - [ ] Améliorer les messages d'erreur et l'expérience utilisateur
   - [ ] Optimiser les performances de l'application
   - [ ] Préparer et effectuer le déploiement en production
+  - [ ] Intégrer Stripe pour la gestion des paiements
+  - [ ] Implémenter la gestion des abonnements
 
 #### Phase 6 : Post-lancement et amélioration continue
   - [ ] Collecter et analyser les retours des premiers utilisateurs

@@ -21,10 +21,10 @@ export default function Home() {
               <Link href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Tarifs
               </Link>
-              <Link href="/auth/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/auth" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Connexion
               </Link>
-              <Link href="/auth/register" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+              <Link href="/auth" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
                 Commencer
               </Link>
             </nav>
@@ -48,7 +48,7 @@ export default function Home() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
-                href="/auth/register"
+                href="/auth"
                 className="rounded-md bg-primary px-6 py-3 text-lg font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
               >
                 Essai gratuit 7 jours
