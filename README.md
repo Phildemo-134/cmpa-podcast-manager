@@ -169,7 +169,8 @@ Transcription {
 ### 🚀 Plan de Développement Détaillé
 
 #### Phase 1 : Fondations (1-2 semaines)
-  - [ ] Initialiser le projet Next.js
+  - [x] Initialiser le projet Next.js
+  - [x] Collecter les clés API
   - [ ] Concevoir et implémenter le schéma de base de données
   - [ ] Mettre en place l'authentification utilisateur de base
   - [ ] Développer le système d'upload de fichiers audio

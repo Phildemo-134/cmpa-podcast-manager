@@ -11,6 +11,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:redis": "npx tsx lib/test-redis.ts",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "db:start": "supabase start",
@@ -49,6 +50,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "@testing-library/react": "^14.1.2",
     "@testing-library/jest-dom": "^6.1.5",
-    "@testing-library/user-event": "^14.5.1"
+    "@testing-library/user-event": "^14.5.1",
+    "tsx": "^4.6.0"
   }
 }
