@@ -61,7 +61,6 @@ date, status, durée, descriptions relatives aux différentes plateformes.
 - **Base de données** : PostgreSQL via Supabase
 - **Stockage fichiers** : Amazon S3 (fichiers audio, exports)
 - **Cache** : Redis pour les performances
-- **ORM** : Prisma ou Drizzle ORM
 
 #### Services Externes
 - **Authentification** : Supabase Auth ou NextAuth.js
@@ -170,7 +169,7 @@ Transcription {
 ### 🚀 Plan de Développement Détaillé
 
 #### Phase 1 : Fondations (1-2 semaines)
-  - [ ] Initialiser et configurer le projet Next.js
+  - [ ] Initialiser le projet Next.js
   - [ ] Concevoir et implémenter le schéma de base de données
   - [ ] Mettre en place l'authentification utilisateur de base
   - [ ] Développer le système d'upload de fichiers audio
@@ -227,11 +226,6 @@ Transcription {
 - **Tests API** : Supertest
 - **Coverage** : Minimum 80%
 
-#### Qualité Code
-- **ESLint** : Règles strictes
-- **Prettier** : Formatage automatique
-- **Husky** : Pre-commit hooks
-- **TypeScript strict** : Mode strict activé
 
 ### 📈 Métriques & Analytics
 
@@ -253,7 +247,6 @@ Transcription {
 
 ### Prérequis
 - Node.js 18+
-- PostgreSQL
 - Redis
 - Comptes : Supabase, Stripe, OpenAI, AWS S3
 
@@ -285,12 +278,7 @@ npm run dev
 DATABASE_URL="postgresql://..."
 REDIS_URL="redis://..."
 
-# Authentification
-NEXTAUTH_SECRET="..."
-NEXTAUTH_URL="http://localhost:3000"
-
 # APIs externes
-DEEPGRAM_API_KEY="..."
 ANTHROPIC_API_KEY="..."
 AWS_ACCESS_KEY_ID="..."
 AWS_SECRET_ACCESS_KEY="..."
