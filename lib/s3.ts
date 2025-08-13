@@ -36,10 +36,14 @@ export async function uploadAudioToS3(
   const fileName = `${Math.random().toString(36).substr(2, 9)}.${fileExt}`
   const key = `audio/${userId}/${episodeId}/${fileName}`
 
+  // Convertir le fichier File en Buffer pour S3
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
   const params: AWS.S3.PutObjectRequest = {
     Bucket: BUCKET_NAME,
     Key: key,
-    Body: file,
+    Body: buffer,
     ContentType: file.type,
     ACL: 'private', // Fichiers privés par défaut
     Metadata: {

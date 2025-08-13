@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       .update({
         audio_file_url: s3Result.url,
         s3_key: s3Result.key,
-        status: 'uploaded'
+        status: 'completed'
       })
       .eq('id', episode.id)
 
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
         ...episode,
         audio_file_url: s3Result.url,
         s3_key: s3Result.key,
-        status: 'uploaded'
+        status: 'completed'
       }
     })
 
