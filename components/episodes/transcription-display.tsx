@@ -3,25 +3,61 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { FileText, Copy, Check, Download, Eye, EyeOff } from 'lucide-react'
 import { Transcription } from '../../types/database'
+import { SpeakerEditor } from './speaker-editor'
 
 interface TranscriptionDisplayProps {
   transcription: Transcription
   onTimestampClick?: (timestamp: { start: number; end: number; text: string }) => void
   currentTime?: number
+  onTranscriptionUpdated?: (updatedTranscription: Transcription) => void
 }
 
 export function TranscriptionDisplay({ 
   transcription, 
   onTimestampClick,
-  currentTime = 0 
+  currentTime = 0,
+  onTranscriptionUpdated
 }: TranscriptionDisplayProps) {
   const [copied, setCopied] = useState(false)
   const [showRawText, setShowRawText] = useState(true)
   const [showTimestamps, setShowTimestamps] = useState(true)
 
+  // Fonction pour obtenir le nom personnalisé d'un speaker
+  const getSpeakerDisplayName = (speakerId: string): string => {
+    if (!speakerId) return 'Speaker inconnu'
+    
+    // Si le speaker a déjà un nom personnalisé (pas "Speaker X"), l'utiliser
+    if (!speakerId.startsWith('Speaker ')) {
+      return speakerId
+    }
+    
+    // Sinon, retourner l'ID original (Speaker 1, Speaker 2, etc.)
+    return speakerId
+  }
+
+  // Fonction pour générer une transcription brute formatée avec les noms des speakers
+  const getFormattedRawText = (): string => {
+    if (!transcription.timestamps || !Array.isArray(transcription.timestamps)) {
+      return transcription.raw_text || 'Aucun texte disponible'
+    }
+
+    // Construire le texte formaté à partir des timestamps
+    return transcription.timestamps
+      .map((timestamp: any) => {
+        if (timestamp.speaker && timestamp.text) {
+          const speakerName = getSpeakerDisplayName(timestamp.speaker)
+          return `${speakerName}: ${timestamp.text}`
+        }
+        return timestamp.text || ''
+      })
+      .filter(Boolean)
+      .join('\n\n')
+  }
+
   const handleCopyText = async () => {
     try {
-      await navigator.clipboard.writeText(transcription.raw_text)
+      const textToCopy = getFormattedRawText()
+      await navigator.clipboard.writeText(textToCopy)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
@@ -30,7 +66,8 @@ export function TranscriptionDisplay({
   }
 
   const handleDownloadText = () => {
-    const blob = new Blob([transcription.raw_text], { type: 'text/plain' })
+    const textToDownload = getFormattedRawText()
+    const blob = new Blob([textToDownload], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -108,7 +145,7 @@ export function TranscriptionDisplay({
           </CardHeader>
           <CardContent>
             <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-800 whitespace-pre-wrap max-h-96 overflow-y-auto">
-              {transcription.raw_text || 'Aucun texte disponible'}
+              {getFormattedRawText()}
             </div>
           </CardContent>
         </Card>
@@ -147,7 +184,7 @@ export function TranscriptionDisplay({
                             {formatTime(typedTimestamp.start)} - {formatTime(typedTimestamp.end)}
                             {typedTimestamp.speaker && (
                               <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                                Speaker {typedTimestamp.speaker}
+                                {getSpeakerDisplayName(typedTimestamp.speaker)}
                               </span>
                             )}
                           </div>
@@ -222,6 +259,12 @@ export function TranscriptionDisplay({
           </div>
         </CardContent>
       </Card>
+
+      {/* Speaker Editor */}
+      <SpeakerEditor
+        transcription={transcription}
+        onTranscriptionUpdated={onTranscriptionUpdated}
+      />
     </div>
   )
 }

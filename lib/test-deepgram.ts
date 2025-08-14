@@ -1,64 +1,52 @@
 import { deepgramService } from './deepgram'
 
-async function testDeepgram() {
+async function testDiarization() {
   try {
-    console.log('🧪 Test du service Deepgram...')
+    console.log('🧪 Test de la diarisation Deepgram...')
     
-    // Vérifier la configuration
-    console.log('📋 Configuration:')
-    console.log('- API Key configurée:', !!process.env.DEEPGRAM_API_KEY)
+    // Test avec une URL audio (remplacez par une vraie URL de test)
+    const testAudioUrl = process.env.TEST_AUDIO_URL || 'https://example.com/test-audio.mp3'
     
-    // Test de validation de l'API key
-    console.log('\n🔑 Validation de l\'API key...')
-    const isValid = await deepgramService.validateApiKey()
-    console.log('- API Key valide:', isValid)
+    console.log('📡 URL audio de test:', testAudioUrl)
     
-    // Test avec un fichier audio d'exemple (si disponible)
-    if (process.env.TEST_AUDIO_URL) {
-      console.log('\n🎵 Test de transcription...')
-      console.log('- URL audio de test:', process.env.TEST_AUDIO_URL)
-      
-      const result = await deepgramService.transcribeAudio(
-        process.env.TEST_AUDIO_URL,
-        {
-          model: 'nova-2',
-          language: 'fr',
-          smart_format: true,
-          punctuate: true,
-          diarize: true,
-          utterances: true
-        }
-      )
-      
-      console.log('\n✅ Transcription réussie!')
-      console.log('- Texte extrait:', result.raw_text.substring(0, 100) + '...')
-      console.log('- Nombre de timestamps:', result.timestamps.length)
-      console.log('- Confiance:', result.confidence)
-      console.log('- Langue détectée:', result.language)
-      
-      if (result.timestamps.length > 0) {
-        console.log('\n📝 Premier timestamp:')
-        console.log('- Début:', result.timestamps[0].start, 's')
-        console.log('- Fin:', result.timestamps[0].end, 's')
-        console.log('- Texte:', result.timestamps[0].text)
-        console.log('- Speaker:', result.timestamps[0].speaker || 'Non spécifié')
-      }
+    const result = await deepgramService.transcribeAudio(testAudioUrl, {
+      model: 'nova-2',
+      language: 'fr',
+      smart_format: true,
+      punctuate: true,
+      diarize: true,
+      paragraphs: true,
+      utterances: true, // Important pour la diarisation
+    })
+    
+    console.log('✅ Transcription réussie !')
+    console.log('📝 Texte brut:', result.raw_text.substring(0, 200) + '...')
+    console.log('🎯 Nombre de timestamps:', result.timestamps.length)
+    
+    // Afficher les premiers timestamps avec speakers
+    console.log('\n🔊 Premiers timestamps avec speakers:')
+    result.timestamps.slice(0, 5).forEach((timestamp, index) => {
+      console.log(`${index + 1}. [${timestamp.start}s - ${timestamp.end}s] ${timestamp.speaker || 'Speaker inconnu'}: ${timestamp.text.substring(0, 100)}...`)
+    })
+    
+    // Vérifier la présence de speakers
+    const speakersWithText = result.timestamps.filter(t => t.speaker && t.text.trim())
+    console.log(`\n👥 Nombre de segments avec speakers identifiés: ${speakersWithText.length}`)
+    
+    if (speakersWithText.length > 0) {
+      console.log('🎉 La diarisation fonctionne correctement !')
     } else {
-      console.log('\n⚠️  Pas d\'URL audio de test configurée')
-      console.log('   Ajoutez TEST_AUDIO_URL dans votre .env pour tester la transcription')
+      console.log('⚠️  Aucun speaker identifié. Vérifiez la configuration.')
     }
     
-    console.log('\n🎉 Test terminé avec succès!')
-    
   } catch (error) {
-    console.error('\n❌ Erreur lors du test:', error)
-    process.exit(1)
+    console.error('❌ Erreur lors du test:', error)
   }
 }
 
 // Exécuter le test si le fichier est appelé directement
 if (require.main === module) {
-  testDeepgram()
+  testDiarization()
 }
 
-export { testDeepgram }
+export { testDiarization }

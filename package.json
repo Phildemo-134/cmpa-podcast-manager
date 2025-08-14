@@ -14,6 +14,7 @@
     "test:redis": "npx tsx lib/test-redis.ts",
     "test:s3": "npx tsx lib/test-s3.ts",
     "test:deepgram": "npx tsx lib/test-deepgram.ts",
+    "test:speakers": "npx tsx lib/test-speaker-editing.ts",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
     "db:start": "supabase start",

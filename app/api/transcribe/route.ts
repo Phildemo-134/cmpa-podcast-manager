@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
           language: 'fr', // Détection automatique si pas spécifié
           smart_format: true,
           punctuate: true,
-          diarize: false, // Désactivé car peut ne pas être disponible dans tous les plans
-          utterances: false // Désactivé car peut ne pas être disponible dans tous les plans
+          diarize: true, // Désactivé car peut ne pas être disponible dans tous les plans
+          utterances: true // Désactivé car peut ne pas être disponible dans tous les plans
         }
       )
       
