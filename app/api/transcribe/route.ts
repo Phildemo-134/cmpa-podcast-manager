@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { deepgramService } from '../../../lib/deepgram'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -71,18 +72,78 @@ export async function POST(request: NextRequest) {
       throw transcriptionError
     }
 
-    // TODO: Intégrer avec un service de transcription réel
-    // Pour l'instant, on simule le processus
-    // Exemples de services : OpenAI Whisper, AssemblyAI, Rev.ai, etc.
-    
-    // Simuler le début de la transcription
+    // Effectuer la transcription avec Deepgram
     console.log(`Début de la transcription pour l'épisode ${episodeId}`)
+    console.log(`URL audio: ${episode.audio_file_url}`)
     
-    // Ici, vous pourriez :
-    // 1. Appeler l'API de transcription (OpenAI Whisper, AssemblyAI, etc.)
-    // 2. Uploader le fichier audio vers le service
-    // 3. Récupérer l'ID de job de transcription
-    // 4. Stocker cet ID pour le suivi
+    try {
+      // Effectuer la transcription
+      const transcriptionResult = await deepgramService.transcribeAudio(
+        episode.audio_file_url,
+        {
+          model: 'nova-2',
+          language: 'fr', // Détection automatique si pas spécifié
+          smart_format: true,
+          punctuate: true,
+          diarize: false, // Désactivé car peut ne pas être disponible dans tous les plans
+          utterances: false // Désactivé car peut ne pas être disponible dans tous les plans
+        }
+      )
+      
+      // Mettre à jour la transcription avec le résultat
+      const { error: updateTranscriptionError } = await supabase
+        .from('transcriptions')
+        .update({
+          raw_text: transcriptionResult.raw_text,
+          timestamps: transcriptionResult.timestamps,
+          processing_status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', transcription.id)
+      
+      if (updateTranscriptionError) {
+        throw updateTranscriptionError
+      }
+      
+      // Mettre à jour le statut de l'épisode
+      const { error: updateEpisodeError } = await supabase
+        .from('episodes')
+        .update({
+          status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', episodeId)
+      
+      if (updateEpisodeError) {
+        throw updateEpisodeError
+      }
+      
+      console.log(`Transcription terminée pour l'épisode ${episodeId}`)
+      
+    } catch (transcriptionError) {
+      console.error('Erreur lors de la transcription Deepgram:', transcriptionError)
+      
+      // Mettre à jour le statut de la transcription en cas d'erreur
+      await supabase
+        .from('transcriptions')
+        .update({
+          processing_status: 'error',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', transcription.id)
+      
+      // Mettre à jour le statut de l'épisode
+      await supabase
+        .from('episodes')
+        .update({
+          status: 'error',
+          error_message: transcriptionError instanceof Error ? transcriptionError.message : 'Erreur lors de la transcription',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', episodeId)
+      
+      throw transcriptionError
+    }
 
     return NextResponse.json({
       success: true,

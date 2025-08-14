@@ -21,6 +21,7 @@ import { Label } from '../../../components/ui/label'
 import { TimestampDisplay } from '../../../components/episodes/timestamp-display'
 import { EpisodeMetadata } from '../../../components/episodes/episode-metadata'
 import { EpisodeStatus } from '../../../components/episodes/episode-status'
+import { TranscriptionDisplay } from '../../../components/episodes/transcription-display'
 import { createClient } from '@supabase/supabase-js'
 import { Episode, Transcription } from '../../../types/database'
 
@@ -412,32 +413,16 @@ export default function EpisodeDetailPage() {
               )}
               
               {transcription && transcription.processing_status === 'completed' && (
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700">Texte brut</Label>
-                    <div className="mt-2 p-4 bg-gray-50 rounded-lg text-sm text-gray-800 whitespace-pre-wrap">
-                      {transcription.raw_text}
-                    </div>
-                  </div>
-                  
-                  {transcription.timestamps && (
-                    <div>
-                      <Label className="text-sm font-medium text-gray-700">Timestamps</Label>
-                      <div className="mt-2">
-                        <TimestampDisplay 
-                          timestamps={transcription.timestamps as Array<{start: number, end: number, text: string, speaker?: string}>}
-                          onTimestampClick={(timestamp) => {
-                            if (audioRef.current) {
-                              audioRef.current.currentTime = timestamp.start
-                              audioRef.current.play()
-                            }
-                          }}
-                          currentTime={currentTime}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <TranscriptionDisplay
+                  transcription={transcription}
+                  onTimestampClick={(timestamp) => {
+                    if (audioRef.current) {
+                      audioRef.current.currentTime = timestamp.start
+                      audioRef.current.play()
+                    }
+                  }}
+                  currentTime={currentTime}
+                />
               )}
               
               {transcription && transcription.processing_status === 'error' && (
