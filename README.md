@@ -171,19 +171,19 @@ Transcription {
 #### Phase 1 : Fondations (1-2 semaines) 
   - [x] Initialiser le projet Next.js
   - [x] Collecter les clés API
-  - [ ] Concevoir et implémenter le schéma de base de données
-  - [ ] Mettre en place l'authentification utilisateur de base
-  - [ ] Développer le système d'upload de fichiers audio
-  - [ ] Créer l'interface utilisateur de gestion des épisodes
+  - [x] Concevoir et implémenter le schéma de base de données
+  - [x] Mettre en place l'authentification utilisateur de base
+  - [x] Développer le système d'upload de fichiers audio
+  - [x] Créer l'interface utilisateur de gestion des épisodes
 
 
 #### Phase 2 : Développement de la pipeline IA (2-3 semaines)
+  - [ ] Editer les détails des épisodes
   - [ ] Intégrer les services de transcription audio
   - [ ] Développer le système d'amélioration automatique des transcriptions
   - [ ] Implémenter l'extraction automatique des sujets et timestamps
   - [ ] Mettre en place la gestion d'erreurs et les fonctionnalités de retry
   - [ ] Créer le système de suivi des statuts de traitement
-  - [ ] Développer l'interface d'édition du contenu généré
 
 #### Phase 3 : Génération de contenu (1-2 semaines)
   - [ ] Développer la génération de descriptions spécifiques par plateforme :

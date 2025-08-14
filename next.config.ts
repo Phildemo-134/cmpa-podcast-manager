@@ -13,9 +13,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // Configuration pour la production
-  swcMinify: true,
-  
   // Headers de sécurité
   async headers() {
     return [
@@ -40,13 +37,11 @@ const nextConfig: NextConfig = {
   },
   
   // Configuration pour le développement
-  experimental: {
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
   },

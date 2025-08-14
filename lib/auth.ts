@@ -3,24 +3,31 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '../types/database'
 
-export function createServerSupabaseClient() {
-  const cookieStore = cookies()
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll()
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-        setAll(cookiesToSet) {
+        set(name: string, value: string, options: any) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+            cookieStore.set(name, value, options)
           } catch {
-            // The `setAll` method was called from a Server Component.
+            // The `set` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+        remove(name: string, options: any) {
+          try {
+            cookieStore.set(name, '', { ...options, maxAge: 0 })
+          } catch {
+            // The `remove` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
           }
@@ -31,7 +38,7 @@ export function createServerSupabaseClient() {
 }
 
 export async function getSession() {
-  const supabase = createClient()
+  const supabase = await createServerSupabaseClient()
   try {
     const {
       data: { session },
@@ -44,7 +51,7 @@ export async function getSession() {
 }
 
 export async function getUserDetails() {
-  const supabase = createClient()
+  const supabase = await createServerSupabaseClient()
   try {
     const { data: userDetails } = await supabase
       .from('users')
@@ -63,7 +70,7 @@ export async function updateProfile(updates: {
   subscription_status?: 'active' | 'inactive' | 'cancelled'
   stripe_customer_id?: string
 }) {
-  const supabase = createClient()
+  const supabase = await createServerSupabaseClient()
   try {
     const { data, error } = await supabase
       .from('users')
