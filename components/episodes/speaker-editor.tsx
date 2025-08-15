@@ -147,21 +147,16 @@ export function SpeakerEditor({
           <p className="text-sm text-gray-600">
             {uniqueSpeakers.length} speaker{uniqueSpeakers.length > 1 ? 's' : ''} identifié{uniqueSpeakers.length > 1 ? 's' : ''} dans cette transcription.
           </p>
-          <div className="space-y-0">
-            {uniqueSpeakers.map((speaker, index) => (
-              <div key={speaker} className="relative">
-                <div className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium text-gray-900">{speaker}</span>
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {(transcription.timestamps as any[])?.filter((t: any) => t && typeof t === 'object' && t.speaker === speaker).length || 0} segments
-                  </span>
+          <div className="space-y-2">
+            {uniqueSpeakers.map((speaker) => (
+              <div key={speaker} className="bg-sky-50 rounded-lg p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-gray-500" />
+                  <span className="font-medium text-gray-900">{speaker}</span>
                 </div>
-                {index < uniqueSpeakers.length - 1 && (
-                  <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200"></div>
-                )}
+                <span className="text-sm text-gray-500">
+                  {(transcription.timestamps as any[])?.filter((t: any) => t && typeof t === 'object' && t.speaker === speaker).length || 0} segments
+                </span>
               </div>
             ))}
           </div>

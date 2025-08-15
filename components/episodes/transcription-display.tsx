@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
-import { FileText, Copy, Check, Download, Eye, EyeOff, Users, Edit2, Save, X } from 'lucide-react'
+import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X } from 'lucide-react'
 import { Transcription } from '../../types/database'
 import { SpeakerEditor } from './speaker-editor'
 
@@ -273,7 +273,7 @@ export function TranscriptionDisplay({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Users className="h-5 w-5" />
+              <User className="h-5 w-5" />
               Gestion des Speakers
             </CardTitle>
             <div className="flex gap-2">
@@ -282,6 +282,7 @@ export function TranscriptionDisplay({
                   variant="outline"
                   size="sm"
                   onClick={() => setIsEditing(true)}
+                  className="border-gray-300 text-gray-900 hover:bg-gray-50 hover:border-gray-400"
                 >
                   <Edit2 className="h-4 w-4 mr-2" />
                   Éditer les noms
@@ -292,7 +293,7 @@ export function TranscriptionDisplay({
                     size="sm"
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-sky-500 hover:bg-sky-600 text-white"
                   >
                     {isSaving ? (
                       <>
@@ -317,9 +318,6 @@ export function TranscriptionDisplay({
               )}
             </div>
           </div>
-          <CardDescription>
-            Personnalisez les noms des speakers identifiés dans la transcription
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <SpeakerEditor
