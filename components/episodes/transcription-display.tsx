@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
-import { FileText, Copy, Check, Download, Eye, EyeOff } from 'lucide-react'
+import { FileText, Copy, Check, Download, Eye, EyeOff, Users, Edit2, Save, X } from 'lucide-react'
 import { Transcription } from '../../types/database'
 import { SpeakerEditor } from './speaker-editor'
 
@@ -21,6 +21,14 @@ export function TranscriptionDisplay({
   const [copied, setCopied] = useState(false)
   const [showRawText, setShowRawText] = useState(true)
   const [showTimestamps, setShowTimestamps] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Fonction pour sauvegarder les speakers
+  const handleSave = async () => {
+    // Cette fonction sera gérée par le composant SpeakerEditor
+    setIsEditing(false)
+  }
 
   // Fonction pour obtenir le nom personnalisé d'un speaker
   const getSpeakerDisplayName = (speakerId: string): string => {
@@ -260,11 +268,68 @@ export function TranscriptionDisplay({
         </CardContent>
       </Card>
 
-      {/* Speaker Editor */}
-      <SpeakerEditor
-        transcription={transcription}
-        onTranscriptionUpdated={onTranscriptionUpdated}
-      />
+      {/* Gestion des Speakers - Intégrée après les informations de la transcription */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Users className="h-5 w-5" />
+              Gestion des Speakers
+            </CardTitle>
+            <div className="flex gap-2">
+              {!isEditing ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Éditer les noms
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {isSaving ? (
+                      <>
+                        <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        Sauvegarde...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Sauvegarder
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          <CardDescription>
+            Personnalisez les noms des speakers identifiés dans la transcription
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SpeakerEditor
+            transcription={transcription}
+            onTranscriptionUpdated={onTranscriptionUpdated}
+            isEditing={isEditing}
+            onEditChange={setIsEditing}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }

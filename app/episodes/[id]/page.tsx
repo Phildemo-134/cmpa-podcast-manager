@@ -12,7 +12,9 @@ import {
   FileText,
   RefreshCw,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Edit2,
+  Users
 } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
@@ -24,6 +26,7 @@ import { EpisodeStatus } from '../../../components/episodes/episode-status'
 import { TranscriptionDisplay } from '../../../components/episodes/transcription-display'
 import { createClient } from '@supabase/supabase-js'
 import { Episode, Transcription } from '../../../types/database'
+import { SpeakerEditor } from '../../../components/episodes/speaker-editor'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,6 +46,8 @@ export default function EpisodeDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isTranscribing, setIsTranscribing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false) // New state for saving
+  const [isEditingSpeakers, setIsEditingSpeakers] = useState(false) // New state for speakers editing
 
   const [currentTime, setCurrentTime] = useState(0)
   
@@ -112,6 +117,7 @@ export default function EpisodeDetailPage() {
   const handleSave = async () => {
     if (!episode) return
 
+    setIsSaving(true)
     try {
       const { error } = await supabase
         .from('episodes')
@@ -135,6 +141,23 @@ export default function EpisodeDetailPage() {
       setIsEditing(false)
     } catch (err) {
       alert(`Erreur lors de la sauvegarde: ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleSaveSpeakers = async () => {
+    if (!transcription) return
+
+    setIsSaving(true)
+    try {
+      // Cette fonction sera appelée par le composant SpeakerEditor
+      // via onTranscriptionUpdated
+      setIsEditingSpeakers(false)
+    } catch (err) {
+      alert(`Erreur lors de la sauvegarde des speakers: ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -412,7 +435,7 @@ export default function EpisodeDetailPage() {
                     {isTranscribing ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Régénération en cours...
+                        Régénérer en cours...
                       </>
                     ) : (
                       <>
@@ -433,17 +456,22 @@ export default function EpisodeDetailPage() {
               )}
               
               {transcription && transcription.processing_status === 'completed' && (
-                <TranscriptionDisplay
-                  transcription={transcription}
-                  onTimestampClick={(timestamp) => {
-                    if (audioRef.current) {
-                      audioRef.current.currentTime = timestamp.start
-                      audioRef.current.play()
-                    }
-                  }}
-                  currentTime={currentTime}
-                  onTranscriptionUpdated={handleTranscriptionUpdated}
-                />
+                <>
+                  <TranscriptionDisplay
+                    transcription={transcription}
+                    onTimestampClick={(timestamp) => {
+                      if (audioRef.current) {
+                        audioRef.current.currentTime = timestamp.start
+                        audioRef.current.play()
+                      }
+                    }}
+                    currentTime={currentTime}
+                    onTranscriptionUpdated={handleTranscriptionUpdated}
+                  />
+                  
+                  {/* Gestion des Speakers - Intégrée dans la section transcription */}
+                  {/* This block is now moved to the main card */}
+                </>
               )}
               
               {transcription && transcription.processing_status === 'error' && (

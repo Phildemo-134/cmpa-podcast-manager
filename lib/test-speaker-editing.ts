@@ -30,11 +30,11 @@ async function testSpeakerEditing() {
       return
     }
     
-    const speakers = Array.from(
+    const speakers: string[] = Array.from(
       new Set(
         transcription.timestamps
           .filter((t: any) => t.speaker)
-          .map((t: any) => t.speaker)
+          .map((t: any) => t.speaker as string)
       )
     )
     
@@ -47,7 +47,7 @@ async function testSpeakerEditing() {
     
     // Créer des mappings de test
     const speakerMappings: Record<string, string> = {}
-    speakers.forEach((speaker, index) => {
+    speakers.forEach((speaker: string, index) => {
       speakerMappings[speaker] = `Test Speaker ${index + 1}`
     })
     
