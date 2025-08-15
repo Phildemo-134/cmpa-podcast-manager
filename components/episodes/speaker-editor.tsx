@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -12,12 +12,17 @@ interface SpeakerEditorProps {
   onEditChange: (editing: boolean) => void
 }
 
-export function SpeakerEditor({ 
+export interface SpeakerEditorHandle {
+  handleSave: () => Promise<void>
+  handleCancel: () => void
+}
+
+export const SpeakerEditor = forwardRef<SpeakerEditorHandle, SpeakerEditorProps>(({ 
   transcription, 
   onTranscriptionUpdated, 
   isEditing, 
-  onEditChange 
-}: SpeakerEditorProps) {
+  onEditChange
+}, ref) => {
   const [speakerMappings, setSpeakerMappings] = useState<Record<string, string>>({})
   const [isSaving, setIsSaving] = useState(false)
 
@@ -39,22 +44,17 @@ export function SpeakerEditor({
   const initialMappings = useMemo(() => {
     const mappings: Record<string, string> = {}
     uniqueSpeakers.forEach(speaker => {
-      // Utiliser le nom actuel du speaker s'il a déjà été personnalisé
-      const currentSpeakerName = (transcription.timestamps as any[])?.find(
-        (t: any) => t.speaker === speaker
-      )?.speaker || speaker
-      
-      mappings[speaker] = currentSpeakerName
+      // Utiliser directement le nom du speaker tel qu'il apparaît dans les timestamps
+      // (qui peut déjà être un nom personnalisé)
+      mappings[speaker] = speaker
     })
     return mappings
   }, [uniqueSpeakers, transcription.timestamps])
 
   useEffect(() => {
-    // Initialiser les mappings seulement si ils ont changé
-    if (Object.keys(initialMappings).length > 0) {
-      setSpeakerMappings(initialMappings)
-    }
-  }, [initialMappings])
+    // Réinitialiser les mappings quand la transcription change
+    setSpeakerMappings(initialMappings)
+  }, [initialMappings, transcription.updated_at])
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -94,13 +94,15 @@ export function SpeakerEditor({
 
   const handleCancel = () => {
     // Restaurer les valeurs originales
-    const initialMappings: Record<string, string> = {}
-    uniqueSpeakers.forEach(speaker => {
-      initialMappings[speaker] = speaker
-    })
     setSpeakerMappings(initialMappings)
     onEditChange(false)
   }
+
+  // Exposer les méthodes handleSave et handleCancel via la ref
+  useImperativeHandle(ref, () => ({
+    handleSave,
+    handleCancel
+  }), [speakerMappings])
 
   if (uniqueSpeakers.length === 0) {
     return null
@@ -164,4 +166,6 @@ export function SpeakerEditor({
       )}
     </div>
   )
-}
+})
+
+SpeakerEditor.displayName = 'SpeakerEditor'

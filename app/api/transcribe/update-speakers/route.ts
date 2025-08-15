@@ -67,42 +67,32 @@ export async function PUT(request: NextRequest) {
       console.log('✅ Changements détectés dans les timestamps')
     }
 
-    // Mettre à jour la transcription
-    const { error: updateError } = await supabase
+    // Mettre à jour la transcription - laisser le trigger gérer updated_at
+    const { data: updatedTranscriptionData, error: updateError } = await supabase
       .from('transcriptions')
       .update({
-        timestamps: updatedTimestamps,
-        updated_at: new Date().toISOString()
+        timestamps: updatedTimestamps
       })
       .eq('id', transcriptionId)
+      .select('*')
+      .single()
 
     if (updateError) {
       console.log('❌ Erreur lors de la mise à jour:', updateError)
       throw updateError
     }
 
-    console.log('✅ Transcription mise à jour avec succès en base de données')
-
-    // Vérifier que la mise à jour a bien été effectuée en relisant la transcription
-    const { data: updatedTranscription, error: verifyError } = await supabase
-      .from('transcriptions')
-      .select('*')
-      .eq('id', transcriptionId)
-      .single()
-
-    if (verifyError) {
-      console.log('⚠️ Erreur lors de la vérification:', verifyError)
-    } else {
-      console.log('🔍 Vérification - Transcription après mise à jour:', updatedTranscription.timestamps)
+    if (!updatedTranscriptionData) {
+      throw new Error('Aucune donnée retournée après la mise à jour')
     }
+
+    console.log('✅ Transcription mise à jour avec succès en base de données')
+    console.log('🔍 Transcription mise à jour:', updatedTranscriptionData)
 
     const result = {
       success: true,
       message: 'Noms des speakers mis à jour',
-      transcription: {
-        ...transcription,
-        timestamps: updatedTimestamps
-      }
+      transcription: updatedTranscriptionData
     }
 
     console.log('🔍 Résultat retourné:', result)

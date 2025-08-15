@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
 import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X } from 'lucide-react'
 import { Transcription } from '../../types/database'
-import { SpeakerEditor } from './speaker-editor'
+import { SpeakerEditor, SpeakerEditorHandle } from './speaker-editor'
 
 interface TranscriptionDisplayProps {
   transcription: Transcription
@@ -23,10 +23,26 @@ export function TranscriptionDisplay({
   const [showTimestamps, setShowTimestamps] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const speakerEditorRef = useRef<SpeakerEditorHandle>(null)
 
   // Fonction pour sauvegarder les speakers
   const handleSave = async () => {
-    // Cette fonction sera gérée par le composant SpeakerEditor
+    if (speakerEditorRef.current) {
+      setIsSaving(true)
+      try {
+        await speakerEditorRef.current.handleSave()
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error)
+      } finally {
+        setIsSaving(false)
+      }
+    }
+  }
+
+  const handleCancel = () => {
+    if (speakerEditorRef.current) {
+      speakerEditorRef.current.handleCancel()
+    }
     setIsEditing(false)
   }
 
@@ -34,12 +50,8 @@ export function TranscriptionDisplay({
   const getSpeakerDisplayName = (speakerId: string): string => {
     if (!speakerId) return 'Speaker inconnu'
     
-    // Si le speaker a déjà un nom personnalisé (pas "Speaker X"), l'utiliser
-    if (!speakerId.startsWith('Speaker ')) {
-      return speakerId
-    }
-    
-    // Sinon, retourner l'ID original (Speaker 1, Speaker 2, etc.)
+    // Retourner directement le nom du speaker tel qu'il est stocké
+    // (peut être "Speaker 1" ou un nom personnalisé comme "Jean")
     return speakerId
   }
 
@@ -310,7 +322,7 @@ export function TranscriptionDisplay({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsEditing(false)}
+                    onClick={handleCancel}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -321,6 +333,8 @@ export function TranscriptionDisplay({
         </CardHeader>
         <CardContent>
           <SpeakerEditor
+            ref={speakerEditorRef}
+            key={transcription.updated_at || transcription.created_at}
             transcription={transcription}
             onTranscriptionUpdated={onTranscriptionUpdated}
             isEditing={isEditing}

@@ -458,6 +458,7 @@ export default function EpisodeDetailPage() {
               {transcription && transcription.processing_status === 'completed' && (
                 <>
                   <TranscriptionDisplay
+                    key={transcription.updated_at || transcription.created_at}
                     transcription={transcription}
                     onTimestampClick={(timestamp) => {
                       if (audioRef.current) {
