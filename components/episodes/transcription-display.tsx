@@ -4,6 +4,12 @@ import { Button } from '../ui/button'
 import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X, Sparkles, Loader2 } from 'lucide-react'
 import { Transcription } from '../../types/database'
 import { SpeakerEditor, SpeakerEditorHandle } from './speaker-editor'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 interface TranscriptionDisplayProps {
   transcription: Transcription
@@ -25,6 +31,12 @@ export function TranscriptionDisplay({
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [optimizedText, setOptimizedText] = useState<string | null>(null)
   const [showOptimizedText, setShowOptimizedText] = useState(false)
+  
+  // Nouveaux états pour l'édition de la transcription optimisée
+  const [isEditingOptimized, setIsEditingOptimized] = useState(false)
+  const [isSavingOptimized, setIsSavingOptimized] = useState(false)
+  const [editableOptimizedText, setEditableOptimizedText] = useState<string>('')
+  
   const speakerEditorRef = useRef<SpeakerEditorHandle>(null)
 
   // Afficher automatiquement la transcription optimisée si elle existe en base
@@ -32,6 +44,7 @@ export function TranscriptionDisplay({
     if (transcription.cleaned_text) {
       setOptimizedText(transcription.cleaned_text)
       setShowOptimizedText(true)
+      setEditableOptimizedText(transcription.cleaned_text)
     }
   }, [transcription.cleaned_text])
 
@@ -54,6 +67,56 @@ export function TranscriptionDisplay({
       speakerEditorRef.current.handleCancel()
     }
     setIsEditing(false)
+  }
+
+  // Nouvelle fonction pour sauvegarder la transcription optimisée
+  const handleSaveOptimized = async () => {
+    if (!transcription.id) return
+
+    setIsSavingOptimized(true)
+    try {
+      const { error } = await supabase
+        .from('transcriptions')
+        .update({
+          cleaned_text: editableOptimizedText,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', transcription.id)
+
+      if (error) throw error
+
+      // Mettre à jour l'état local
+      setOptimizedText(editableOptimizedText)
+      
+      // Notifier le composant parent
+      if (onTranscriptionUpdated) {
+        const updatedTranscription = {
+          ...transcription,
+          cleaned_text: editableOptimizedText,
+          updated_at: new Date().toISOString()
+        }
+        onTranscriptionUpdated(updatedTranscription)
+      }
+
+      setIsEditingOptimized(false)
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de la transcription optimisée:', error)
+      alert(`Erreur lors de la sauvegarde: ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
+    } finally {
+      setIsSavingOptimized(false)
+    }
+  }
+
+  // Fonction pour annuler l'édition de la transcription optimisée
+  const handleCancelOptimized = () => {
+    setEditableOptimizedText(transcription.cleaned_text || '')
+    setIsEditingOptimized(false)
+  }
+
+  // Fonction pour démarrer l'édition de la transcription optimisée
+  const handleStartEditOptimized = () => {
+    setEditableOptimizedText(transcription.cleaned_text || '')
+    setIsEditingOptimized(true)
   }
 
   // Fonction pour obtenir le nom personnalisé d'un speaker
@@ -237,15 +300,73 @@ export function TranscriptionDisplay({
       {(optimizedText || transcription.cleaned_text) && showOptimizedText && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="h-5 w-5 text-blue-600" />
-              Transcription optimisée
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="h-5 w-5 text-blue-600" />
+                Transcription optimisée
+              </CardTitle>
+              <div className="flex gap-2">
+                {!isEditingOptimized ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleStartEditOptimized}
+                    className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+                  >
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Éditer
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveOptimized}
+                      disabled={isSavingOptimized}
+                      className="bg-sky-500 hover:bg-sky-600 text-white"
+                    >
+                      {isSavingOptimized ? (
+                        <>
+                          <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          Sauvegarde...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Sauvegarder
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancelOptimized}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Annuler
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="p-4 bg-blue-50 rounded-lg text-sm text-blue-900 whitespace-pre-wrap max-h-96 overflow-y-auto border border-blue-200">
-              {optimizedText || transcription.cleaned_text}
-            </div>
+            {isEditingOptimized ? (
+              <div className="space-y-3">
+                <textarea
+                  value={editableOptimizedText}
+                  onChange={(e) => setEditableOptimizedText(e.target.value)}
+                  className="w-full h-96 p-4 bg-white border border-blue-300 rounded-lg text-sm text-gray-900 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Éditez votre transcription optimisée ici..."
+                />
+                <div className="text-xs text-gray-500">
+                  Modifiez le texte selon vos besoins. Les changements seront sauvegardés en base de données.
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 bg-blue-50 rounded-lg text-sm text-blue-900 whitespace-pre-wrap max-h-96 overflow-y-auto border border-blue-200">
+                {optimizedText || transcription.cleaned_text}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
