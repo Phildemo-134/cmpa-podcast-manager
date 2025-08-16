@@ -1,0 +1,116 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { GoogleGenAI } from '@google/genai'
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+})
+
+export async function POST(request: NextRequest) {
+  try {
+    const { transcriptionText } = await request.json()
+
+    if (!transcriptionText) {
+      return NextResponse.json(
+        { error: 'Le texte de transcription est requis' },
+        { status: 400 }
+      )
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json(
+        { error: 'Clé API Gemini non configurée' },
+        { status: 500 }
+      )
+    }
+
+    const tools = [
+      {
+        googleSearch: {}
+      },
+    ]
+
+    const config = {
+      thinkingConfig: {
+        thinkingBudget: -1,
+      },
+      tools,
+    }
+
+    const model = 'gemini-2.5-flash'
+    const contents = [
+      {
+        role: 'user',
+        parts: [
+          {
+            text: `Tu es un expert en édition de transcription. Ton travail est d'optimiser la transcription pour assurer une lisibilité maximale
+tout en gardant l'essentiel du message.
+
+Chose importante: réponds UNIQUEMENT avec la transcription optimisée. N'inclus aucune explication, headers ou phrases du type:
+"Ceci est la transcription".
+
+Assure-toi que ces points sont respectés:
+1. Corrige les erreurs d'attribution de la personne qui parle, en particulier aux zones de changement de locuteur. Fais attention aux phrases incomplètes
+qui sont sûrement du locuteur précédent.
+
+2. Combine les paragraphes d'un même locuteur en un unique paragraphe. Utilise le temps de debut de prise de parole comme
+temps de début du paragraphe combiné.
+
+3. Optimise la lisibilité tout en gardant le plus possible la transcription originale:
+- Enlève les mots de remplissage: "hum", "euh", "en fait", "tu vois"
+- Retire les faux départs et les répétitions
+- Scinde les phrases trop longues en phrases plus courtes
+- Conserve un flux de conversation naturel tout en améliorant la clarté 
+- N'utilise pas trop de points d'exclamation ou d'interrogation
+
+4. Maintient une consistance dans le format
+- Maintient le format "[00:00:00] Speaker X" avec aucune parenthèse ou autre format
+- Ajoute UN SEUL saut de ligne après le nom du speaker/timestamp et avant le texte 
+- Ajoute deux saut de ligne après le texte et avant le prochain nom du speaker/timestamp
+- Utilise une ponctuation appropriée et des majuscules quand c'est nécessaire
+- Ajoute un saut de paragraphe lors de changements de sujets
+- Quand tu ajoute un saut de paragraphe entre deux remarques d'un même locuteur, pas besoin
+de respecifier le nom du speaker
+- Préserve les tours de parole distincts 
+
+Exemple d'input:
+[00:01:08] Dimitri : Uhm, euh, ok, je pensais que, tu vois
+[00:01:18] Dimitri : les températures ont diminuées, hum, par rapport aux, aux derniers jours
+[00:01:26] Sophia : on peut tout de même pas dire qu'on en a fini avec cet épisode de canicule
+
+Exemple d'output:
+[00:01:08] Dimitri
+les températures ont diminuées par rapport aux derniers jours
+
+[00:01:26] Sophia 
+on peut tout de même pas dire qu'on en a fini avec cet épisode de canicule
+
+Optimise la transcription suivante:
+
+${transcriptionText}`,
+          },
+        ],
+      },
+    ]
+
+    const response = await ai.models.generateContentStream({
+      model,
+      config,
+      contents,
+    })
+
+    let optimizedText = ''
+    for await (const chunk of response) {
+      if (chunk.text) {
+        optimizedText += chunk.text
+      }
+    }
+
+    return NextResponse.json({ optimizedText })
+  } catch (error) {
+    console.error('Erreur lors de l\'optimisation:', error)
+    return NextResponse.json(
+      { error: 'Erreur lors de l\'optimisation de la transcription' },
+      { status: 500 }
+    )
+  }
+}

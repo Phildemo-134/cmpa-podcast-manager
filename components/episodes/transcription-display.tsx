@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
-import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X } from 'lucide-react'
+import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X, Sparkles, Loader2 } from 'lucide-react'
 import { Transcription } from '../../types/database'
 import { SpeakerEditor, SpeakerEditorHandle } from './speaker-editor'
 
@@ -22,6 +22,9 @@ export function TranscriptionDisplay({
   const [showRawText, setShowRawText] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isOptimizing, setIsOptimizing] = useState(false)
+  const [optimizedText, setOptimizedText] = useState<string | null>(null)
+  const [showOptimizedText, setShowOptimizedText] = useState(false)
   const speakerEditorRef = useRef<SpeakerEditorHandle>(null)
 
   // Fonction pour sauvegarder les speakers
@@ -98,6 +101,35 @@ export function TranscriptionDisplay({
     URL.revokeObjectURL(url)
   }
 
+  const handleOptimize = async () => {
+    setIsOptimizing(true)
+    try {
+      const response = await fetch('/api/optimize-transcription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          transcriptionText: getFormattedRawText() 
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erreur lors de l\'optimisation')
+      }
+
+      const { optimizedText } = await response.json()
+      setOptimizedText(optimizedText)
+      setShowOptimizedText(true)
+    } catch (error) {
+      console.error('Erreur lors de l\'optimisation:', error)
+      alert(`Erreur lors de l'optimisation: ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
+    } finally {
+      setIsOptimizing(false)
+    }
+  }
+
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
@@ -143,6 +175,26 @@ export function TranscriptionDisplay({
           <Download className="h-4 w-4 mr-2" />
           Télécharger
         </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleOptimize}
+          disabled={isOptimizing}
+          className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+        >
+          {isOptimizing ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Optimisation...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 mr-2" />
+              Optimiser
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Texte brut */}
@@ -157,6 +209,23 @@ export function TranscriptionDisplay({
           <CardContent>
             <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-800 whitespace-pre-wrap max-h-96 overflow-y-auto">
               {getFormattedRawText()}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Transcription optimisée */}
+      {optimizedText && showOptimizedText && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Sparkles className="h-5 w-5 text-blue-600" />
+              Transcription optimisée
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="p-4 bg-blue-50 rounded-lg text-sm text-blue-900 whitespace-pre-wrap max-h-96 overflow-y-auto border border-blue-200">
+              {optimizedText}
             </div>
           </CardContent>
         </Card>
