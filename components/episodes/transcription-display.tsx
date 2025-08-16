@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
 import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X, Sparkles, Loader2 } from 'lucide-react'
@@ -26,6 +26,14 @@ export function TranscriptionDisplay({
   const [optimizedText, setOptimizedText] = useState<string | null>(null)
   const [showOptimizedText, setShowOptimizedText] = useState(false)
   const speakerEditorRef = useRef<SpeakerEditorHandle>(null)
+
+  // Afficher automatiquement la transcription optimisée si elle existe en base
+  useEffect(() => {
+    if (transcription.cleaned_text) {
+      setOptimizedText(transcription.cleaned_text)
+      setShowOptimizedText(true)
+    }
+  }, [transcription.cleaned_text])
 
   // Fonction pour sauvegarder les speakers
   const handleSave = async () => {
@@ -110,7 +118,8 @@ export function TranscriptionDisplay({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          transcriptionText: getFormattedRawText() 
+          transcriptionText: getFormattedRawText(),
+          transcriptionId: transcription.id
         }),
       })
 
@@ -122,6 +131,16 @@ export function TranscriptionDisplay({
       const { optimizedText } = await response.json()
       setOptimizedText(optimizedText)
       setShowOptimizedText(true)
+      
+      // Rafraîchir les données de la transcription
+      if (onTranscriptionUpdated) {
+        const updatedTranscription = {
+          ...transcription,
+          cleaned_text: optimizedText,
+          updated_at: new Date().toISOString()
+        }
+        onTranscriptionUpdated(updatedTranscription)
+      }
     } catch (error) {
       console.error('Erreur lors de l\'optimisation:', error)
       alert(`Erreur lors de l'optimisation: ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
@@ -215,7 +234,7 @@ export function TranscriptionDisplay({
       )}
 
       {/* Transcription optimisée */}
-      {optimizedText && showOptimizedText && (
+      {(optimizedText || transcription.cleaned_text) && showOptimizedText && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -225,7 +244,7 @@ export function TranscriptionDisplay({
           </CardHeader>
           <CardContent>
             <div className="p-4 bg-blue-50 rounded-lg text-sm text-blue-900 whitespace-pre-wrap max-h-96 overflow-y-auto border border-blue-200">
-              {optimizedText}
+              {optimizedText || transcription.cleaned_text}
             </div>
           </CardContent>
         </Card>
