@@ -11,78 +11,61 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function POST(request: NextRequest) {
-  try {
-    const { transcriptionText, transcriptionId } = await request.json()
+// Fonction pour diviser le texte en parties de 10 000 mots maximum
+function splitTextIntoChunks(text: string, maxWords: number = 10000): string[] {
+  const lines = text.split('\n')
+  const chunks: string[] = []
+  let currentChunk = ''
+  let currentWordCount = 0
 
-    if (!transcriptionText) {
-      return NextResponse.json(
-        { error: 'Le texte de transcription est requis' },
-        { status: 400 }
-      )
+  for (const line of lines) {
+    const lineWords = line.trim().split(/\s+/).length
+    
+    // Si ajouter cette ligne dépasserait la limite de mots
+    if (currentWordCount + lineWords > maxWords && currentChunk.trim()) {
+      chunks.push(currentChunk.trim())
+      currentChunk = line + '\n'
+      currentWordCount = lineWords
+    } else {
+      currentChunk += line + '\n'
+      currentWordCount += lineWords
     }
+  }
 
-    if (!transcriptionId) {
-      return NextResponse.json(
-        { error: 'L\'ID de la transcription est requis' },
-        { status: 400 }
-      )
-    }
+  // Ajouter le dernier chunk s'il contient du texte
+  if (currentChunk.trim()) {
+    chunks.push(currentChunk.trim())
+  }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json(
-        { error: 'Clé API Gemini non configurée' },
-        { status: 500 }
-      )
-    }
+  return chunks
+}
 
-    // Récupérer la transcription avec les timestamps pour avoir les noms des speakers
-    const { data: transcription, error: fetchError } = await supabase
-      .from('transcriptions')
-      .select('*')
-      .eq('id', transcriptionId)
-      .single()
+// Fonction pour optimiser une partie du texte
+async function optimizeChunk(
+  chunk: string, 
+  speakerNames: string[], 
+  chunkIndex: number
+): Promise<string> {
+  const tools = [
+    {
+      googleSearch: {}
+    },
+  ]
 
-    if (fetchError || !transcription) {
-      console.error('Erreur lors de la récupération de la transcription:', fetchError)
-      return NextResponse.json(
-        { error: 'Transcription non trouvée' },
-        { status: 404 }
-      )
-    }
+  const config = {
+    thinkingConfig: {
+      thinkingBudget: -1,
+    },
+    tools,
+  }
 
-    // Extraire les noms des speakers depuis les timestamps
-    const speakerNames = Array.from(
-      new Set(
-        (transcription.timestamps as any[])
-          ?.filter((t: any) => t && typeof t === 'object' && t.speaker && typeof t.speaker === 'string')
-          .map((t: any) => t.speaker as string)
-          .filter(Boolean)
-      )
-    ).sort()
-
-    console.log('🔍 Speakers détectés:', speakerNames)
-
-    const tools = [
-      {
-        googleSearch: {}
-      },
-    ]
-
-    const config = {
-      thinkingConfig: {
-        thinkingBudget: -1,
-      },
-      tools,
-    }
-
-    const model = 'gemini-2.5-flash'
-    const contents = [
-      {
-        role: 'user',
-        parts: [
-          {
-            text: `Tu es un expert en édition de transcription. Ton travail est d'optimiser la transcription pour assurer une lisibilité maximale
+  const model = 'gemini-2.5-flash'
+  const contents = [
+    {
+      role: 'user',
+      parts: [
+        {
+          text: `Tu es un expert en édition de transcription. Ton travail est d'optimiser la transcription pour assurer une lisibilité maximale
 tout en gardant l'essentiel du message.
 
 Chose importante: réponds UNIQUEMENT avec la transcription optimisée. N'inclus aucune explication, headers ou phrases du type:
@@ -135,24 +118,95 @@ on peut tout de même pas dire qu'on en a fini avec cet épisode de canicule
 
 Optimise la transcription suivante en remplaçant TOUS les "Speaker X" par les vrais noms:
 
-${transcriptionText}`,
-          },
-        ],
-      },
-    ]
-
-    const response = await ai.models.generateContentStream({
-      model,
-      config,
-      contents,
-    })
-
-    let optimizedText = ''
-    for await (const chunk of response) {
-      if (chunk.text) {
-        optimizedText += chunk.text
-      }
+${chunk}`
+        }
+      ]
     }
+  ]
+
+  const response = await ai.models.generateContentStream({
+    model,
+    config,
+    contents,
+  })
+
+  let optimizedText = ''
+  for await (const chunk of response) {
+    if (chunk.text) {
+      optimizedText += chunk.text
+    }
+  }
+
+  return optimizedText
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { transcriptionText, transcriptionId } = await request.json()
+
+    if (!transcriptionText) {
+      return NextResponse.json(
+        { error: 'Le texte de transcription est requis' },
+        { status: 400 }
+      )
+    }
+
+    if (!transcriptionId) {
+      return NextResponse.json(
+        { error: 'L\'ID de la transcription est requis' },
+        { status: 400 }
+      )
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json(
+        { error: 'Clé API Gemini non configurée' },
+        { status: 500 }
+      )
+    }
+
+    // Récupérer la transcription avec les timestamps pour avoir les noms des speakers
+    const { data: transcription, error: fetchError } = await supabase
+      .from('transcriptions')
+      .select('*')
+      .eq('id', transcriptionId)
+      .single()
+
+    if (fetchError || !transcription) {
+      console.error('Erreur lors de la récupération de la transcription:', fetchError)
+      return NextResponse.json(
+        { error: 'Transcription non trouvée' },
+        { status: 404 }
+      )
+    }
+
+    // Extraire les noms des speakers depuis les timestamps
+    const speakerNames = Array.from(
+      new Set(
+        (transcription.timestamps as any[])
+          ?.filter((t: any) => t && typeof t === 'object' && t.speaker && typeof t.speaker === 'string')
+          .map((t: any) => t.speaker as string)
+          .filter(Boolean)
+      )
+    ).sort()
+
+    console.log('🔍 Speakers détectés:', speakerNames)
+
+    // Diviser le texte en parties de 10 000 mots maximum
+    const textChunks = splitTextIntoChunks(transcriptionText, 10000)
+    console.log(`📝 Texte divisé en ${textChunks.length} parties pour l'optimisation`)
+
+    // Exécuter les optimisations en parallèle
+    const optimizationPromises = textChunks.map((chunk, index) => 
+      optimizeChunk(chunk, speakerNames, index)
+    )
+
+    // Attendre que toutes les optimisations soient terminées
+    const optimizedChunks = await Promise.all(optimizationPromises)
+    console.log('✅ Toutes les parties ont été optimisées')
+
+    // Rassembler les parties optimisées
+    const optimizedText = optimizedChunks.join('\n\n')
 
     // Sauvegarder la transcription optimisée en base de données
     const { error: updateError } = await supabase
@@ -173,7 +227,8 @@ ${transcriptionText}`,
 
     return NextResponse.json({ 
       optimizedText,
-      transcriptionId 
+      transcriptionId,
+      chunksProcessed: textChunks.length
     })
   } catch (error) {
     console.error('Erreur lors de l\'optimisation:', error)
