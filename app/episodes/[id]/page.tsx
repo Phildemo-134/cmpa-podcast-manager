@@ -49,12 +49,15 @@ export default function EpisodeDetailPage() {
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [isSaving, setIsSaving] = useState(false) // New state for saving
   const [isEditingSpeakers, setIsEditingSpeakers] = useState(false) // New state for speakers editing
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false) // New state for description generation
+  const [isGeneratingTimestamps, setIsGeneratingTimestamps] = useState(false) // New state for timestamps generation
 
   const [currentTime, setCurrentTime] = useState(0)
   
   // Form states
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [editTimestamps, setEditTimestamps] = useState('')
   const [editVideoUrl, setEditVideoUrl] = useState('')
   
   // Audio ref
@@ -77,6 +80,7 @@ export default function EpisodeDetailPage() {
       setEpisode(episodeData)
       setEditTitle(episodeData.title)
       setEditDescription(episodeData.description || '')
+      setEditTimestamps(episodeData.timestamps || '')
       setEditVideoUrl(episodeData.video_url || '')
 
       // Fetch transcription if exists
@@ -125,6 +129,7 @@ export default function EpisodeDetailPage() {
         .update({
           title: editTitle,
           description: editDescription || null,
+          timestamps: editTimestamps || null,
           video_url: editVideoUrl || null,
           updated_at: new Date().toISOString()
         })
@@ -136,6 +141,7 @@ export default function EpisodeDetailPage() {
         ...prev,
         title: editTitle,
         description: editDescription || null,
+        timestamps: editTimestamps || null,
         video_url: editVideoUrl || null
       } : null)
       
@@ -144,6 +150,66 @@ export default function EpisodeDetailPage() {
       alert(`Erreur lors de la sauvegarde: ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleGenerateDescription = async () => {
+    if (!episode || !transcription) return
+
+    setIsGeneratingDescription(true)
+    try {
+      const response = await fetch('/api/generate-description', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ episodeId: episode.id }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erreur lors de la génération de la description')
+      }
+
+      const { description } = await response.json()
+      
+      // Mettre à jour le champ de description
+      setEditDescription(description)
+      
+    } catch (err) {
+      alert(`Erreur lors de la génération de la description: ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
+    } finally {
+      setIsGeneratingDescription(false)
+    }
+  }
+
+  const handleGenerateTimestamps = async () => {
+    if (!episode || !transcription) return
+
+    setIsGeneratingTimestamps(true)
+    try {
+      const response = await fetch('/api/generate-timestamps', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ episodeId: episode.id }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erreur lors de la génération des timestamps')
+      }
+
+      const { timestamps } = await response.json()
+      
+      // Mettre à jour le champ de timestamps
+      setEditTimestamps(timestamps)
+      
+    } catch (err) {
+      alert(`Erreur lors de la génération des timestamps: ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
+    } finally {
+      setIsGeneratingTimestamps(false)
     }
   }
 
@@ -331,13 +397,73 @@ export default function EpisodeDetailPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="description">Description</Label>
-                        <Input
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor="description">Description</Label>
+                          {transcription && transcription.processing_status === 'completed' && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleGenerateDescription}
+                              disabled={isGeneratingDescription}
+                              className="text-sm"
+                            >
+                              {isGeneratingDescription ? (
+                                <>
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                  Génération...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Générer
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                        <textarea
                           id="description"
                           value={editDescription}
                           onChange={(e) => setEditDescription(e.target.value)}
-                          className="mt-1"
+                          className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="Description de l'épisode"
+                          rows={4}
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor="timestamps">Timestamps</Label>
+                          {transcription && transcription.processing_status === 'completed' && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleGenerateTimestamps}
+                              disabled={isGeneratingTimestamps}
+                              className="text-sm"
+                            >
+                              {isGeneratingTimestamps ? (
+                                <>
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                  Génération...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Générer
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                        <textarea
+                          id="timestamps"
+                          value={editTimestamps}
+                          onChange={(e) => setEditTimestamps(e.target.value)}
+                          className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Format: 00:00 - Introduction, 05:30 - Discussion principale, etc."
+                          rows={4}
                         />
                       </div>
                       <div>
@@ -359,6 +485,16 @@ export default function EpisodeDetailPage() {
                           {episode.description}
                         </CardDescription>
                       )}
+                      {episode.timestamps && (
+                        <div className="mt-3">
+                          <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                            Timestamps
+                          </Label>
+                          <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md whitespace-pre-line">
+                            {episode.timestamps}
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
@@ -376,6 +512,7 @@ export default function EpisodeDetailPage() {
                           setIsEditing(false)
                           setEditTitle(episode.title)
                           setEditDescription(episode.description || '')
+                          setEditTimestamps(episode.timestamps || '')
                           setEditVideoUrl(episode.video_url || '')
                         }}
                       >

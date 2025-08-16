@@ -186,6 +186,8 @@ Transcription {
   - [x] Créer le système de suivi des statuts de traitement
 
 #### Phase 3 : Génération de contenu (1-2 semaines)
+  - [x] Générer les notes/résumé du podcast
+  - [x] Générer les timestamps/résumés du podcast
   - [ ] Développer la génération de descriptions spécifiques par plateforme :
        - Descriptions optimisées pour blog
        - Descriptions adaptées à YouTube
