@@ -20,7 +20,6 @@ export function TranscriptionDisplay({
 }: TranscriptionDisplayProps) {
   const [copied, setCopied] = useState(false)
   const [showRawText, setShowRawText] = useState(true)
-  const [showTimestamps, setShowTimestamps] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const speakerEditorRef = useRef<SpeakerEditorHandle>(null)
@@ -61,17 +60,18 @@ export function TranscriptionDisplay({
       return transcription.raw_text || 'Aucun texte disponible'
     }
 
-    // Construire le texte formaté à partir des timestamps
+    // Construire le texte formaté à partir des timestamps avec format [00:00] Speaker1 : texte
     return transcription.timestamps
       .map((timestamp: any) => {
         if (timestamp.speaker && timestamp.text) {
           const speakerName = getSpeakerDisplayName(timestamp.speaker)
-          return `${speakerName}: ${timestamp.text}`
+          const timeFormatted = formatTime(timestamp.start)
+          return `[${timeFormatted}] ${speakerName} : ${timestamp.text}`
         }
         return timestamp.text || ''
       })
       .filter(Boolean)
-      .join('\n\n')
+      .join('\n')
   }
 
   const handleCopyText = async () => {
@@ -129,15 +129,6 @@ export function TranscriptionDisplay({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setShowTimestamps(!showTimestamps)}
-        >
-          {showTimestamps ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-          {showTimestamps ? 'Masquer timestamps' : 'Afficher timestamps'}
-        </Button>
-        
-        <Button
-          variant="outline"
-          size="sm"
           onClick={handleCopyText}
         >
           {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
@@ -166,72 +157,6 @@ export function TranscriptionDisplay({
           <CardContent>
             <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-800 whitespace-pre-wrap max-h-96 overflow-y-auto">
               {getFormattedRawText()}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Timestamps */}
-      {showTimestamps && transcription.timestamps && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Timestamps détaillés</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {Array.isArray(transcription.timestamps) ? (
-                transcription.timestamps.map((timestamp, index) => {
-                  // Type guard pour vérifier que le timestamp a la bonne structure
-                  if (!timestamp || typeof timestamp !== 'object' || !('start' in timestamp) || !('end' in timestamp) || !('text' in timestamp)) {
-                    return null
-                  }
-                  
-                  const typedTimestamp = timestamp as { start: number; end: number; text: string; speaker?: string }
-                  
-                  return (
-                    <div
-                      key={index}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                        isTimestampActive(typedTimestamp)
-                          ? 'bg-blue-50 border-blue-200'
-                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                      }`}
-                      onClick={() => onTimestampClick?.(typedTimestamp)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="text-sm text-gray-600 mb-1">
-                            {formatTime(typedTimestamp.start)} - {formatTime(typedTimestamp.end)}
-                            {typedTimestamp.speaker && (
-                              <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                                {getSpeakerDisplayName(typedTimestamp.speaker)}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-gray-800">{typedTimestamp.text}</p>
-                        </div>
-                        {onTimestampClick && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="ml-2"
-                            onClick={(e: React.MouseEvent) => {
-                              e.stopPropagation()
-                              onTimestampClick(typedTimestamp)
-                            }}
-                          >
-                            ▶️
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )
-                }).filter(Boolean)
-              ) : (
-                <p className="text-gray-500 text-center py-4">
-                  Aucun timestamp disponible
-                </p>
-              )}
             </div>
           </CardContent>
         </Card>

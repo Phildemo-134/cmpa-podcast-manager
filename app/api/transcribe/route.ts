@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
         .from('transcriptions')
         .update({
           raw_text: transcriptionResult.raw_text,
+          cleaned_text: transcriptionResult.formatted_text,
           timestamps: transcriptionResult.timestamps,
           processing_status: 'completed',
           updated_at: new Date().toISOString()

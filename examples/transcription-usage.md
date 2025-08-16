@@ -82,6 +82,7 @@ async function transcribeAudioFile(audioUrl: string) {
     
     console.log('Transcription réussie!')
     console.log('Texte:', result.raw_text)
+    console.log('Texte formaté:', result.formatted_text)
     console.log('Timestamps:', result.timestamps.length)
     console.log('Confiance:', result.confidence)
     
@@ -98,6 +99,20 @@ transcribeAudioFile('https://example.com/audio.mp3')
   .then(result => {
     // Traiter le résultat
     console.log('Texte transcrit:', result.raw_text.substring(0, 100))
+    
+    // Afficher le format formaté avec timestamps et speakers
+    console.log('\nTranscription formatée:')
+    console.log(result.formatted_text)
+    
+    // Exemple de sortie:
+    // [00:00] Speaker1 : Bonjour, comment allez-vous aujourd'hui ?
+    // [00:06] Speaker2 : Très bien merci, et vous ?
+    // [00:12] Speaker1 : Parfait, merci beaucoup !
+    
+    // Exemple avec combinaison intelligente des paragraphes:
+    // [00:00] Speaker1 : Bonjour, comment allez-vous ? J'espère que vous allez bien.
+    // [00:08] Speaker2 : Très bien merci, et vous ?
+    // [00:12] Speaker1 : Parfait, merci beaucoup ! C'était un plaisir de vous parler.
   })
   .catch(error => {
     console.error('Échec:', error.message)

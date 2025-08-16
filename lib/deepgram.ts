@@ -2,6 +2,7 @@ import { createClient } from '@deepgram/sdk'
 
 export interface TranscriptionResult {
   raw_text: string
+  formatted_text: string
   timestamps: Array<{
     start: number
     end: number
@@ -73,28 +74,107 @@ export class DeepgramService {
         throw new Error('No transcription result received from Deepgram')
       }
 
-      // Extraire le texte brut
-      const rawText = result.results?.channels?.[0]?.alternatives?.[0]?.paragraphs?.transcript || ''
+      // Extraire le texte brut et les paragraphes
+      const rawText = result.results?.channels?.[0]?.alternatives?.[0]?.transcript || ''
+      const paragraphsData = result.results?.channels?.[0]?.alternatives?.[0]?.paragraphs?.paragraphs
 
-      // Extraire les timestamps avec les mots et speakers
+      // Extraire les timestamps avec les paragraphes et speakers
       const timestamps: Array<{start: number, end: number, text: string, speaker?: string}> = []
       
-      // Utiliser les utterances si disponibles (meilleure diarisation)
-      const utteranceResults = (result.results?.channels?.[0]?.alternatives?.[0] as any)?.utterances
-      if (utteranceResults && Array.isArray(utteranceResults)) {
-        for (const utterance of utteranceResults) {
-          if (utterance.speaker !== undefined && utterance.start !== undefined && utterance.end !== undefined) {
-            timestamps.push({
-              start: utterance.start,
-              end: utterance.end,
-              text: utterance.transcript || '',
-              speaker: `Speaker ${utterance.speaker + 1}` // Deepgram utilise 0-based indexing
-            })
+      // Traiter les paragraphes si disponibles (nouveau format)
+      if (paragraphsData) {
+        let paragraphsArray: any[] = []
+        
+        // Gérer le cas où paragraphsData peut être un objet ou un tableau
+        if (Array.isArray(paragraphsData)) {
+          paragraphsArray = paragraphsData
+        } else if (typeof paragraphsData === 'object') {
+          // Convertir l'objet paragraphs en tableau
+          paragraphsArray = Object.values(paragraphsData)
+        }
+        
+        // Trier les paragraphes par ordre chronologique
+        paragraphsArray.sort((a, b) => (a.start || 0) - (b.start || 0))
+        
+        // Combiner les paragraphes consécutifs du même speaker
+        const combinedParagraphs: any[] = []
+        let currentParagraph: any = null
+        
+        for (const paragraph of paragraphsArray) {
+          if (paragraph && typeof paragraph === 'object' && 'start' in paragraph && 'end' in paragraph) {
+            const para = paragraph as any
+            
+            // Extraire le texte des phrases du paragraphe
+            let paragraphText = ''
+            if (para.sentences && Array.isArray(para.sentences)) {
+              paragraphText = para.sentences
+                .map((sentence: any) => sentence.text || '')
+                .join(' ')
+                .trim()
+            }
+            
+            if (paragraphText) {
+              // Si c'est le premier paragraphe ou si le speaker change
+              if (!currentParagraph || 
+                  currentParagraph.speaker !== `Speaker${para.speaker + 1}` ||
+                  // Si il y a une pause significative (> 2 secondes), créer un nouveau paragraphe
+                  (para.start - currentParagraph.end) > 2) {
+                
+                // Sauvegarder le paragraphe précédent s'il existe
+                if (currentParagraph) {
+                  combinedParagraphs.push(currentParagraph)
+                }
+                
+                // Créer un nouveau paragraphe
+                currentParagraph = {
+                  start: para.start,
+                  end: para.end,
+                  text: paragraphText,
+                  speaker: para.speaker !== undefined ? `Speaker${para.speaker + 1}` : undefined
+                }
+              } else {
+                // Même speaker, combiner les paragraphes
+                currentParagraph.end = para.end
+                currentParagraph.text += ' ' + paragraphText
+              }
+            }
+          }
+        }
+        
+        // Ajouter le dernier paragraphe
+        if (currentParagraph) {
+          combinedParagraphs.push(currentParagraph)
+        }
+        
+        // Convertir en timestamps
+        for (const para of combinedParagraphs) {
+          timestamps.push({
+            start: para.start || 0,
+            end: para.end || 0,
+            text: para.text,
+            speaker: para.speaker
+          })
+        }
+      }
+      
+      // Si pas de paragraphes, utiliser les utterances (fallback)
+      if (timestamps.length === 0) {
+        const utteranceResults = (result.results?.channels?.[0]?.alternatives?.[0] as any)?.utterances
+        if (utteranceResults && Array.isArray(utteranceResults)) {
+          for (const utterance of utteranceResults) {
+            if (utterance.speaker !== undefined && utterance.start !== undefined && utterance.end !== undefined) {
+              timestamps.push({
+                start: utterance.start,
+                end: utterance.end,
+                text: utterance.transcript || '',
+                speaker: `Speaker${utterance.speaker + 1}` // Deepgram utilise 0-based indexing
+              })
+            }
           }
         }
       }
       
-      // Si pas d'utterances, utiliser les mots avec diarisation
+      // Si pas d'utterances, utiliser les mots avec diarisation (fallback)
       if (timestamps.length === 0 && result.results?.channels?.[0]?.alternatives?.[0]?.words) {
         const words = result.results.channels[0].alternatives[0].words
         
@@ -107,14 +187,14 @@ export class DeepgramService {
         for (const word of words) {
           if (!currentStart) {
             currentStart = word.start
-            currentSpeaker = word.speaker !== undefined ? `Speaker ${word.speaker + 1}` : undefined
+            currentSpeaker = word.speaker !== undefined ? `Speaker${word.speaker + 1}` : undefined
           }
           
           currentPhrase += word.word + ' '
           currentEnd = word.end
           
           // Si le speaker change ou si le mot se termine par une ponctuation, c'est la fin d'une phrase
-          if (word.speaker !== undefined && word.speaker !== (currentSpeaker ? parseInt(currentSpeaker.split(' ')[1]) - 1 : undefined) ||
+          if (word.speaker !== undefined && word.speaker !== (currentSpeaker ? parseInt(currentSpeaker.replace('Speaker', '')) - 1 : undefined) ||
               /[.!?]/.test(word.word)) {
             
             if (currentPhrase.trim()) {
@@ -155,6 +235,7 @@ export class DeepgramService {
 
       return {
         raw_text: rawText,
+        formatted_text: this.formatTranscription(timestamps),
         timestamps,
         confidence: result.results?.channels?.[0]?.alternatives?.[0]?.confidence || 0,
         language: language
@@ -168,6 +249,28 @@ export class DeepgramService {
           : 'Unknown error during transcription'
       )
     }
+  }
+
+  /**
+   * Formate la transcription avec timestamps et speakers au format [00:00] Speaker1 : texte
+   */
+  formatTranscription(timestamps: Array<{start: number, end: number, text: string, speaker?: string}>): string {
+    return timestamps
+      .map(({ start, text, speaker }) => {
+        const timestamp = this.formatTimestamp(start)
+        const speakerLabel = speaker || 'Unknown'
+        return `[${timestamp}] ${speakerLabel} : ${text}`
+      })
+      .join('\n')
+  }
+
+  /**
+   * Convertit un timestamp en secondes au format MM:SS
+   */
+  private formatTimestamp(seconds: number): string {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = Math.floor(seconds % 60)
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
   /**
