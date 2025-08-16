@@ -25,11 +25,10 @@ const supabase = createClient(
 )
 
 const statusConfig = {
-  uploading: { label: 'Upload en cours', color: 'text-blue-600', bg: 'bg-blue-50', icon: Loader2 },
-  transcribing: { label: 'Transcription', color: 'text-yellow-600', bg: 'bg-yellow-50', icon: Loader2 },
+  draft: { label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-50', icon: Clock },
   processing: { label: 'Traitement IA', color: 'text-purple-600', bg: 'bg-purple-50', icon: Loader2 },
-  completed: { label: 'Terminé', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
-  error: { label: 'Erreur', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
+  published: { label: 'Publié', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
+  failed: { label: 'Échec', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
 }
 
 export function EpisodeList() {
@@ -102,7 +101,7 @@ export function EpisodeList() {
   }
 
   const getStatusConfig = (status: Episode['status']) => {
-    return statusConfig[status] || statusConfig.error
+    return statusConfig[status] || statusConfig.failed
   }
 
   if (isLoading) {
@@ -229,7 +228,7 @@ export function EpisodeList() {
                   </div>
 
                   {/* Error Message */}
-                  {episode.status === 'error' && episode.error_message && (
+                  {episode.status === 'failed' && episode.error_message && (
                     <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
                       {episode.error_message}
                     </div>

@@ -42,7 +42,7 @@ export interface Database {
           audio_file_url: string
           duration: number | null
           file_size: number | null
-          status: 'uploading' | 'transcribing' | 'processing' | 'completed' | 'error'
+          status: 'draft' | 'processing' | 'published' | 'failed'
           error_message: string | null
           timestamps: string | null
           video_url: string | null
@@ -59,7 +59,7 @@ export interface Database {
           audio_file_url: string
           duration?: number | null
           file_size?: number | null
-          status?: 'uploading' | 'transcribing' | 'processing' | 'completed' | 'error'
+          status?: 'draft' | 'processing' | 'published' | 'failed'
           error_message?: string | null
           timestamps?: string | null
           video_url?: string | null
@@ -76,7 +76,7 @@ export interface Database {
           audio_file_url?: string
           duration?: number | null
           file_size?: number | null
-          status?: 'uploading' | 'transcribing' | 'processing' | 'completed' | 'error'
+          status?: 'draft' | 'processing' | 'published' | 'failed'
           error_message?: string | null
           timestamps?: string | null
           video_url?: string | null

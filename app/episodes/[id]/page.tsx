@@ -27,6 +27,7 @@ import { TranscriptionDisplay } from '../../../components/episodes/transcription
 import { createClient } from '@supabase/supabase-js'
 import { Episode, Transcription } from '../../../types/database'
 import { SpeakerEditor } from '../../../components/episodes/speaker-editor'
+import { StatusDropdown } from '../../../components/episodes/status-dropdown'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -161,6 +162,27 @@ export default function EpisodeDetailPage() {
     }
   }
 
+  const handleStatusChange = async (newStatus: 'draft' | 'processing' | 'published' | 'failed') => {
+    if (!episode) return
+
+    try {
+      const { error } = await supabase
+        .from('episodes')
+        .update({
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', episode.id)
+
+      if (error) throw error
+
+      setEpisode(prev => prev ? { ...prev, status: newStatus } : null)
+    } catch (err) {
+      alert(`Erreur lors de la mise à jour du status: ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
+      throw err
+    }
+  }
+
   const handleTranscribe = async () => {
     if (!episode) return
 
@@ -183,7 +205,7 @@ export default function EpisodeDetailPage() {
       await response.json()
       
       // Mettre à jour l'interface
-      setEpisode(prev => prev ? { ...prev, status: 'transcribing' } : null)
+      setEpisode(prev => prev ? { ...prev, status: 'processing' } : null)
       
       // Démarrer le polling pour vérifier le statut
       startTranscriptionPolling(episode.id)
@@ -205,12 +227,12 @@ export default function EpisodeDetailPage() {
           if (transcription.processing_status === 'completed') {
             // Transcription terminée
             setTranscription(transcription)
-            setEpisode(prev => prev ? { ...prev, status: 'completed' } : null)
+            setEpisode(prev => prev ? { ...prev, status: 'published' } : null)
             setIsTranscribing(false)
             clearInterval(pollInterval)
           } else if (transcription.processing_status === 'error') {
             // Erreur de transcription
-            setEpisode(prev => prev ? { ...prev, status: 'error' } : null)
+            setEpisode(prev => prev ? { ...prev, status: 'failed' } : null)
             setIsTranscribing(false)
             clearInterval(pollInterval)
           }
@@ -374,6 +396,17 @@ export default function EpisodeDetailPage() {
                 <EpisodeStatus status={episode.status} errorMessage={episode.error_message} />
               </div>
               
+              <div className="mb-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Modifier le status
+                </Label>
+                <StatusDropdown
+                  currentStatus={episode.status}
+                  onStatusChange={handleStatusChange}
+                  isUpdating={isSaving}
+                />
+              </div>
+              
               <EpisodeMetadata episode={episode} />
             </CardContent>
           </Card>
@@ -407,7 +440,7 @@ export default function EpisodeDetailPage() {
                   <FileText className="h-5 w-5" />
                   Transcription
                 </CardTitle>
-                {!transcription && episode.status !== 'transcribing' && (
+                {!transcription && episode.status !== 'processing' && (
                   <Button 
                     onClick={handleTranscribe}
                     disabled={isTranscribing}
@@ -448,7 +481,7 @@ export default function EpisodeDetailPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {episode.status === 'transcribing' && !transcription && (
+              {episode.status === 'processing' && !transcription && (
                 <div className="text-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
                   <p className="text-gray-600">Transcription en cours...</p>
@@ -482,7 +515,7 @@ export default function EpisodeDetailPage() {
                 </div>
               )}
               
-              {!transcription && episode.status !== 'transcribing' && (
+              {!transcription && episode.status !== 'processing' && (
                 <div className="text-center py-8 text-gray-500">
                   <Mic className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                   <p>Aucune transcription disponible</p>
@@ -514,7 +547,7 @@ export default function EpisodeDetailPage() {
           )}
 
           {/* Error Message */}
-          {episode.status === 'error' && episode.error_message && (
+          {episode.status === 'failed' && episode.error_message && (
             <Card className="border-red-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 text-red-600 mb-2">

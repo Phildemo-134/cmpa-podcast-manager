@@ -178,12 +178,12 @@ Transcription {
 
 
 #### Phase 2 : Développement de la pipeline IA (2-3 semaines)
-  - [ ] Editer les détails des épisodes
-  - [ ] Intégrer les services de transcription audio
-  - [ ] Développer le système d'amélioration automatique des transcriptions
-  - [ ] Implémenter l'extraction automatique des sujets et timestamps
-  - [ ] Mettre en place la gestion d'erreurs et les fonctionnalités de retry
-  - [ ] Créer le système de suivi des statuts de traitement
+  - [x] Editer les détails des épisodes
+  - [x] Intégrer les services de transcription audio
+  - [x] Développer le système d'amélioration automatique des transcriptions
+  - [x] Implémenter l'extraction automatique des sujets et timestamps
+  - [x] Mettre en place la gestion d'erreurs et les fonctionnalités de retry
+  - [x] Créer le système de suivi des statuts de traitement
 
 #### Phase 3 : Génération de contenu (1-2 semaines)
   - [ ] Développer la génération de descriptions spécifiques par plateforme :
