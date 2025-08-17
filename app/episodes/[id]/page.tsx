@@ -20,6 +20,7 @@ import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
+import { CollapsibleField } from '../../../components/ui/collapsible-field'
 import { TimestampDisplay } from '../../../components/episodes/timestamp-display'
 import { EpisodeMetadata } from '../../../components/episodes/episode-metadata'
 import { EpisodeStatus } from '../../../components/episodes/episode-status'
@@ -480,19 +481,26 @@ export default function EpisodeDetailPage() {
                   ) : (
                     <>
                       <CardTitle className="text-2xl">{episode.title}</CardTitle>
+                      
+                      {/* Description rétractable */}
                       {episode.description && (
-                        <CardDescription className="text-base mt-2">
-                          {episode.description}
-                        </CardDescription>
+                        <div className="mt-8">
+                          <CollapsibleField title="Description" defaultExpanded={false}>
+                            <div className="text-sm text-gray-600 whitespace-pre-line">
+                              {episode.description}
+                            </div>
+                          </CollapsibleField>
+                        </div>
                       )}
+                      
+                      {/* Timestamps rétractables */}
                       {episode.timestamps && (
-                        <div className="mt-3">
-                          <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                            Timestamps
-                          </Label>
-                          <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md whitespace-pre-line">
-                            {episode.timestamps}
-                          </div>
+                        <div className="mt-6">
+                          <CollapsibleField title="Timestamps" defaultExpanded={false}>
+                            <div className="text-sm text-gray-600 whitespace-pre-line">
+                              {episode.timestamps}
+                            </div>
+                          </CollapsibleField>
                         </div>
                       )}
                     </>

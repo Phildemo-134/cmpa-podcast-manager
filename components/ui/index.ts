@@ -3,3 +3,4 @@ export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
 export { Input } from "./input";
 export { Label } from "./label";
 export { Button as ButtonSimple } from "./button-simple";
+export { CollapsibleField } from "./collapsible-field";
