@@ -33,7 +33,7 @@ export function CollapsibleField({
       </Button>
       
       {isExpanded && (
-        <div className="p-4 pt-0 border-t border-gray-200 bg-gray-50">
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
           {children}
         </div>
       )}

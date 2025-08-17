@@ -188,13 +188,13 @@ Transcription {
 #### Phase 3 : Génération de contenu (1-2 semaines)
   - [x] Générer les notes/résumé du podcast
   - [x] Générer les timestamps/résumés du podcast
-  - [ ] Développer la génération de descriptions spécifiques par plateforme :
+  - [x] Développer la génération de descriptions spécifiques par plateforme :
        - Descriptions optimisées pour blog
        - Descriptions adaptées à YouTube
        - Descriptions formatées pour Spotify
   - [ ] Implémenter la génération de publications pour réseaux sociaux
-  - [ ] Créer les fonctionnalités de prévisualisation et d'édition
-  - [ ] Mettre en place le stockage et la gestion du contenu généré
+  - [x] Créer les fonctionnalités de prévisualisation et d'édition
+  - [x] Mettre en place le stockage et la gestion du contenu généré
 
 #### Phase 4 : Intégration aux plateformes (1-2 semaines)
   - [ ] Intégrer l'authentification OAuth pour les réseaux sociaux
@@ -299,3 +299,31 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 ---
 
 *Ce cahier des charges est un document vivant qui évoluera selon les besoins du projet et les retours utilisateurs.*
+
+
+"Le bonheur est-il possible sans illusions ? Dans cet épisode captivant, le philosophe André Comte-Sponville partage sa vision unique sur les grandes questions existentielles qui nous habitent tous. À travers une conversation intime et profonde, il aborde avec finesse les thèmes de l'amour, du deuil, du bonheur et des relations parents-enfants.
+
+Ancien normalien et agrégé de philosophie, Comte-Sponville nous livre ses réflexions sur ce qu'est véritablement le bonheur, au-delà des idéaux et des attentes irréalistes. Il explore notamment la différence entre trois types d'amour - Eros, Philia et Agapé - et nous explique pourquoi accepter l'imperfection est la clé d'une vie plus sereine.
+
+De son enfance complexe à ses expériences personnelles du deuil, en passant par sa vision du couple moderne, le philosophe partage avec authenticité et sagesse des enseignements précieux pour mieux comprendre et accepter la vie telle qu'elle est.
+
+Un épisode riche en perspectives qui vous donnera matière à réflexion sur votre propre quête de sens et de bonheur.
+
+🎧 Écoutez cet épisode pour découvrir une approche philosophique accessible et éclairante sur les grands questionnements de l'existence."
+## Timestamps
+
+[00:00] - Introduction et présentation d'André Comte-Sponville
+[02:45] - Définition et accessibilité de la philosophie
+[07:30] - Parcours personnel et découverte de la philosophie
+[13:15] - Réflexion sur le bonheur et sa définition
+[21:40] - L'amour et ses différentes formes (Eros, Philia, Agapé)
+[31:20] - Relations parents-enfants et complexe d'Œdipe
+[38:45] - La mort et la vision d'un philosophe athée
+[45:30] - Le couple et l'évolution de l'amour dans le temps
+[52:15] - L'éducation des enfants et le rôle des parents
+[59:40] - Le deuil et comment y faire face
+[01:05:20] - Les rêves et comment gérer leur non-réalisation
+[01:12:45] - La sagesse et l'acceptation de la vie
+[01:18:30] - Conclusion et souhaits pour l'avenir
+Ces timestamps couvrent les principaux sujets abordés dans l'entretien, organisés chronologiquement et avec des descriptions claires et concises.
+

@@ -14,7 +14,10 @@ import {
   Loader2,
   AlertCircle,
   Edit2,
-  Users
+  Users,
+  Youtube,
+  Music,
+  FileText as FileTextIcon
 } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
@@ -29,6 +32,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Episode, Transcription } from '../../../types/database'
 import { SpeakerEditor } from '../../../components/episodes/speaker-editor'
 import { StatusDropdown } from '../../../components/episodes/status-dropdown'
+import { youtubeAcces, youtubeAbonnement, spotifyAcces, spotifyAbonnement } from '../../../lib/donnees-publication'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -320,6 +324,92 @@ export default function EpisodeDetailPage() {
     }, 10 * 60 * 1000)
   }
 
+  // Fonction pour copier le contenu formaté pour YouTube
+  const handleCopyToYoutube = async () => {
+    if (!episode) return
+
+    const content = [
+      youtubeAcces,
+      '',
+      episode.description || '',
+      '',
+      'TIMESTAMPS',
+      episode.timestamps || '',
+      '',
+      youtubeAbonnement
+    ].filter(Boolean).join('\n')
+
+    try {
+      await navigator.clipboard.writeText(content)
+      alert('Contenu copié pour YouTube !')
+    } catch (err) {
+      console.error('Erreur lors de la copie:', err)
+      alert('Erreur lors de la copie dans le presse-papier')
+    }
+  }
+
+  // Fonction pour copier le contenu formaté pour Spotify
+  const handleCopyToSpotify = async () => {
+    if (!episode) return
+
+    // Formater la description en HTML si elle existe
+    const formattedDescription = episode.description 
+      ? `<p>${episode.description.replace(/\n/g, '</p><p>')}</p>`
+      : ''
+
+    // Formater les timestamps en HTML si ils existent
+    const formattedTimestamps = episode.timestamps
+      ? `<p><strong>TIMESTAMPS</strong></p><p>${episode.timestamps.split('\n').filter(line => line.trim()).join('<br/>')}</p>`
+      : ''
+
+    const content = [
+      spotifyAcces,
+      '',
+      formattedDescription,
+      '<br/>',
+      formattedTimestamps,
+      '<br/>',
+      spotifyAbonnement
+    ].filter(Boolean).join('\n')
+
+    try {
+      await navigator.clipboard.writeText(content)
+      alert('Contenu copié pour Spotify !')
+    } catch (err) {
+      console.error('Erreur lors de la copie:', err)
+      alert('Erreur lors de la copie dans le presse-papier')
+    }
+  }
+
+  // Fonction pour copier le contenu formaté pour le Blog (Markdown)
+  const handleCopyToBlog = async () => {
+    if (!episode) return
+
+    // Formater la description en Markdown si elle existe
+    const formattedDescription = episode.description 
+      ? episode.description.split('\n').map(line => line.trim()).filter(Boolean).join('\n\n')
+      : ''
+
+    // Formater les timestamps en Markdown si ils existent
+    const formattedTimestamps = episode.timestamps
+      ? `## Timestamps\n\n${episode.timestamps.split('\n').map(line => line.trim()).filter(Boolean).join('\n')}`
+      : ''
+
+    const content = [
+      formattedDescription,
+      '',
+      formattedTimestamps
+    ].filter(Boolean).join('\n')
+
+    try {
+      await navigator.clipboard.writeText(content)
+      alert('Contenu copié pour le Blog !')
+    } catch (err) {
+      console.error('Erreur lors de la copie:', err)
+      alert('Erreur lors de la copie dans le presse-papier')
+    }
+  }
+
 
 
 
@@ -477,6 +567,42 @@ export default function EpisodeDetailPage() {
                           placeholder="https://youtube.com/..."
                         />
                       </div>
+                      
+                      {/* Boutons de copie pour les plateformes */}
+                      <div className="pt-4 border-t">
+                        <Label className="text-sm font-medium text-gray-700 mb-3 block">
+                          Copier pour publication
+                        </Label>
+                        <div className="flex gap-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleCopyToYoutube}
+                            className="flex-1"
+                          >
+                            <Youtube className="h-4 w-4 mr-2" />
+                            Copier sur YouTube
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleCopyToSpotify}
+                            className="flex-1"
+                          >
+                            <Music className="h-4 w-4 mr-2" />
+                            Copier sur Spotify
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleCopyToBlog}
+                            className="flex-1"
+                          >
+                            <FileTextIcon className="h-4 w-4 mr-2" />
+                            Copier pour Blog
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -501,6 +627,41 @@ export default function EpisodeDetailPage() {
                               {episode.timestamps}
                             </div>
                           </CollapsibleField>
+                        </div>
+                      )}
+                      
+                      {/* Boutons de copie pour les plateformes */}
+                      {(episode.description || episode.timestamps) && (
+                        <div className="mt-6 pt-4 border-t">
+                          <Label className="text-sm font-medium text-gray-700 mb-3 block">
+                            Copier pour publication
+                          </Label>
+                          <div className="flex gap-3">
+                            <Button
+                              variant="outline"
+                              onClick={handleCopyToYoutube}
+                              className="flex-1"
+                            >
+                              <Youtube className="h-4 w-4 mr-2" />
+                              Copier sur YouTube
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleCopyToSpotify}
+                              className="flex-1"
+                            >
+                              <Music className="h-4 w-4 mr-2" />
+                              Copier sur Spotify
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleCopyToBlog}
+                              className="flex-1"
+                            >
+                              <FileTextIcon className="h-4 w-4 mr-2" />
+                              Copier pour Blog
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </>
