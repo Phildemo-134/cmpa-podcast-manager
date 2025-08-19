@@ -71,11 +71,8 @@ Ce script :
 ### 2. Mise à Jour de la Base de Données
 
 ```bash
-# Appliquer la migration S3
-npm run db:push
-
-# Ou manuellement
-supabase db push
+# Appliquer la migration S3 dans le dashboard Supabase Cloud
+# Créer les nouvelles colonnes via SQL Editor
 ```
 
 ### 3. Vérification de la Configuration

@@ -104,11 +104,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # 1. Installer les dépendances
 npm install
 
-# 2. Démarrer Supabase localement
-npm run db:start
-
-# 3. Appliquer les migrations
-npm run db:push
+# 2. Configurer Supabase Cloud (voir SUPABASE_CLOUD_SETUP.md)
+# 3. Créer les tables dans le dashboard Supabase
 
 # 4. Lancer l'application
 npm run dev

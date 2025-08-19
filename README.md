@@ -58,12 +58,12 @@ date, status, durée, descriptions relatives aux différentes plateformes.
 - **TypeScript** : Typage strict pour la robustesse
 
 #### Base de Données & Stockage
-- **Base de données** : PostgreSQL via Supabase
+- **Base de données** : PostgreSQL via Supabase Cloud
 - **Stockage fichiers** : Amazon S3 (fichiers audio, exports)
 - **Cache** : Redis pour les performances
 
 #### Services Externes
-- **Authentification** : Supabase Auth ou NextAuth.js
+- **Authentification** : Supabase Auth
 - **Paiements** : Stripe (abonnements, paiements uniques)
 - **IA Transcription** : Deepgram Nova 2 API
 - **IA Traitement** : Anthropic Claude 3.5 Sonnet
@@ -268,19 +268,21 @@ npm install
 cp .env.example .env.local
 # Remplir les variables dans .env.local
 
-# Initialiser la base de données
-npm run db:push
-
 # Lancer en développement
 npm run dev
 ```
 
+### Configuration Supabase Cloud
+
+Ce projet utilise Supabase Cloud. Consultez [SUPABASE_CLOUD_SETUP.md](./SUPABASE_CLOUD_SETUP.md) pour la configuration complète.
+
 ### Variables d'Environnement
 
 ```bash
-# Base de données
-DATABASE_URL="postgresql://..."
-REDIS_URL="redis://..."
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # AWS S3 (pour le stockage des fichiers audio)
 AWS_ACCESS_KEY_ID="votre_access_key"

@@ -53,7 +53,7 @@ Le système de status des épisodes a été mis à jour pour utiliser une nomenc
 ## Utilisation
 
 ### Pour les développeurs
-1. Exécuter la migration : `supabase db push`
+1. Exécuter la migration dans le dashboard Supabase Cloud
 2. Les nouveaux types TypeScript sont automatiquement disponibles
 3. Utiliser les nouveaux status dans le code
 

@@ -15,11 +15,7 @@
     "test:s3": "npx tsx lib/test-s3.ts",
     "test:deepgram": "npx tsx lib/test-deepgram.ts",
     "test:speakers": "npx tsx lib/test-speaker-editing.ts",
-    "db:push": "supabase db push",
-    "db:reset": "supabase db reset",
-    "db:start": "supabase start",
-    "db:stop": "supabase stop",
-    "db:init": "./scripts/init-db.sh",
+
     "s3:setup": "./scripts/setup-s3.sh",
     "s3:test": "npx tsx lib/test-s3.ts"
   },
