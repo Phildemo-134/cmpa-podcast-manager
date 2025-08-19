@@ -33,6 +33,50 @@ export interface Database {
           updated_at?: string
         }
       }
+      social_connections: {
+        Row: {
+          id: string
+          user_id: string
+          platform: 'twitter' | 'linkedin'
+          access_token: string
+          refresh_token: string | null
+          token_expires_at: string | null
+          platform_user_id: string
+          platform_username: string
+          is_active: boolean
+          permissions: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          platform: 'twitter' | 'linkedin'
+          access_token: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          platform_user_id: string
+          platform_username: string
+          is_active?: boolean
+          permissions?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          platform?: 'twitter' | 'linkedin'
+          access_token?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          platform_user_id?: string
+          platform_username?: string
+          is_active?: boolean
+          permissions?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+      }
       episodes: {
         Row: {
           id: string
@@ -194,16 +238,19 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 // Types utilitaires
 export type User = Database['public']['Tables']['users']['Row']
+export type SocialConnection = Database['public']['Tables']['social_connections']['Row']
 export type Episode = Database['public']['Tables']['episodes']['Row']
 export type Transcription = Database['public']['Tables']['transcriptions']['Row']
 export type Subscription = Database['public']['Tables']['subscriptions']['Row']
 
 export type UserInsert = Database['public']['Tables']['users']['Insert']
+export type SocialConnectionInsert = Database['public']['Tables']['social_connections']['Insert']
 export type EpisodeInsert = Database['public']['Tables']['episodes']['Insert']
 export type TranscriptionInsert = Database['public']['Tables']['transcriptions']['Insert']
 export type SubscriptionInsert = Database['public']['Tables']['subscriptions']['Insert']
 
 export type UserUpdate = Database['public']['Tables']['users']['Update']
+export type SocialConnectionUpdate = Database['public']['Tables']['social_connections']['Update']
 export type EpisodeUpdate = Database['public']['Tables']['episodes']['Update']
 export type TranscriptionUpdate = Database['public']['Tables']['transcriptions']['Update']
 export type SubscriptionUpdate = Database['public']['Tables']['subscriptions']['Update']
