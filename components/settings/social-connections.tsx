@@ -5,6 +5,7 @@ import { Twitter, Linkedin, CheckCircle, XCircle, ExternalLink } from 'lucide-re
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { TwitterConnectButton } from './twitter-connect-button'
+import { TwitterTestPost } from './twitter-test-post'
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth'
 import { createClient } from '@supabase/supabase-js'
 
@@ -272,6 +273,11 @@ export function SocialConnections() {
             </div>
           </div>
         )}
+        
+        {/* Composant de test Twitter */}
+        <div className="mt-6">
+          <TwitterTestPost isConnected={!!twitterConnection} />
+        </div>
       </Card>
 
       {/* LinkedIn Connection */}

@@ -197,7 +197,7 @@ Transcription {
   - [x] Mettre en place le stockage et la gestion du contenu généré
 
 #### Phase 4 : Intégration aux plateformes (1-2 semaines)
-  - [ ] Intégrer l'authentification OAuth pour les réseaux sociaux
+  - [x] Intégrer l'authentification OAuth pour les réseaux sociaux
   - [ ] Développer les fonctionnalités de publication automatique sur X/Twitter
   - [ ] Implémenter la publication automatique sur LinkedIn
   - [ ] Créer le système de suivi des statuts de publication
