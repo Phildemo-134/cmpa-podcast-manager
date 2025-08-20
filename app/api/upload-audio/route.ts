@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { uploadAudioToS3 } from '@/lib/s3'
 
+// Fonction pour calculer la durée d'un fichier audio
+// Note: La durée sera calculée côté client lors de la lecture
+// Pour l'instant, on retourne 0 et la durée sera mise à jour plus tard
+async function getAudioDuration(file: File): Promise<number> {
+  // La durée sera calculée côté client lors de la première lecture
+  // ou via une API de traitement audio
+  return 0
+}
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -68,6 +77,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Calculer la durée du fichier audio
+    const duration = await getAudioDuration(file)
+    
     // Créer l'épisode dans la base de données d'abord
     const { data: episode, error: episodeError } = await supabase
       .from('episodes')
@@ -78,6 +90,7 @@ export async function POST(request: NextRequest) {
           description: description?.trim() || null,
           audio_file_url: '', // Sera mis à jour après l'upload S3
           file_size: file.size,
+          duration: duration,
           timestamps: timestamps?.trim() || null,
           video_url: videoUrl?.trim() || null,
           status: 'uploading',
@@ -124,7 +137,8 @@ export async function POST(request: NextRequest) {
         ...episode,
         audio_file_url: s3Result.url,
         s3_key: s3Result.key,
-        status: 'completed'
+        status: 'completed',
+        duration: duration
       }
     })
 

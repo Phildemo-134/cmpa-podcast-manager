@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
-import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X, Sparkles, Loader2 } from 'lucide-react'
+import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X, Sparkles } from 'lucide-react'
 import { Transcription } from '../../types/database'
 import { SpeakerEditor, SpeakerEditorHandle } from './speaker-editor'
 import { createClient } from '@supabase/supabase-js'
@@ -28,7 +28,6 @@ export function TranscriptionDisplay({
   const [showRawText, setShowRawText] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [isOptimizing, setIsOptimizing] = useState(false)
   const [optimizedText, setOptimizedText] = useState<string | null>(null)
   const [showOptimizedText, setShowOptimizedText] = useState(false)
   
@@ -172,45 +171,7 @@ export function TranscriptionDisplay({
     URL.revokeObjectURL(url)
   }
 
-  const handleOptimize = async () => {
-    setIsOptimizing(true)
-    try {
-      const response = await fetch('/api/optimize-transcription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          transcriptionText: getFormattedRawText(),
-          transcriptionId: transcription.id
-        }),
-      })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Erreur lors de l\'optimisation')
-      }
-
-      const { optimizedText } = await response.json()
-      setOptimizedText(optimizedText)
-      setShowOptimizedText(true)
-      
-      // Rafraîchir les données de la transcription
-      if (onTranscriptionUpdated) {
-        const updatedTranscription = {
-          ...transcription,
-          cleaned_text: optimizedText,
-          updated_at: new Date().toISOString()
-        }
-        onTranscriptionUpdated(updatedTranscription)
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'optimisation:', error)
-      alert(`Erreur lors de l'optimisation: ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
-    } finally {
-      setIsOptimizing(false)
-    }
-  }
 
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600)
@@ -258,25 +219,7 @@ export function TranscriptionDisplay({
           Télécharger
         </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleOptimize}
-          disabled={isOptimizing}
-          className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
-        >
-          {isOptimizing ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Optimisation...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4 mr-2" />
-              Optimiser
-            </>
-          )}
-        </Button>
+
       </div>
 
       {/* Texte brut */}
@@ -371,48 +314,7 @@ export function TranscriptionDisplay({
         </Card>
       )}
 
-      {/* Métadonnées de la transcription */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Informations de la transcription</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium text-gray-700">Type:</span>
-              <span className="ml-2 text-gray-600 capitalize">
-                {transcription.type}
-              </span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Statut:</span>
-              <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                transcription.processing_status === 'completed'
-                  ? 'bg-green-100 text-green-800'
-                  : transcription.processing_status === 'error'
-                  ? 'bg-red-100 text-red-800'
-                  : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {transcription.processing_status}
-              </span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Créée le:</span>
-              <span className="ml-2 text-gray-600">
-                {new Date(transcription.created_at).toLocaleDateString('fr-FR')}
-              </span>
-            </div>
-            {transcription.updated_at && (
-              <div>
-                <span className="font-medium text-gray-700">Mise à jour:</span>
-                <span className="ml-2 text-gray-600">
-                  {new Date(transcription.updated_at).toLocaleDateString('fr-FR')}
-                </span>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Gestion des Speakers - Intégrée après les informations de la transcription */}
       <Card>

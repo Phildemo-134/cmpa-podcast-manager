@@ -17,7 +17,8 @@ import {
   Users,
   Youtube,
   Music,
-  FileText as FileTextIcon
+  FileText as FileTextIcon,
+  Sparkles
 } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
@@ -70,6 +71,27 @@ export default function EpisodeDetailPage() {
   
   // Audio ref
   const audioRef = useRef<HTMLAudioElement>(null)
+  
+  // Fonction pour calculer et sauvegarder la durée
+  const updateEpisodeDuration = async (duration: number) => {
+    if (!episode || episode.duration === duration) return
+    
+    try {
+      const { error } = await supabase
+        .from('episodes')
+        .update({
+          duration: duration,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', episode.id)
+
+      if (!error) {
+        setEpisode(prev => prev ? { ...prev, duration: duration } : null)
+      }
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour de la durée:', err)
+    }
+  }
 
   const fetchEpisodeData = useCallback(async () => {
     try {
@@ -736,6 +758,12 @@ export default function EpisodeDetailPage() {
                   className="w-full"
                   src={episode.audio_file_url}
                   onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+                  onLoadedMetadata={() => {
+                    if (audioRef.current && audioRef.current.duration && !isNaN(audioRef.current.duration)) {
+                      const duration = Math.round(audioRef.current.duration)
+                      updateEpisodeDuration(duration)
+                    }
+                  }}
                 >
                   Votre navigateur ne supporte pas l'élément audio.
                 </audio>
@@ -770,23 +798,39 @@ export default function EpisodeDetailPage() {
                     </Button>
                   )}
                   {transcription && (
-                    <Button 
-                      variant="outline"
-                      onClick={handleTranscribe}
-                      disabled={isTranscribing}
-                    >
-                      {isTranscribing ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Régénérer en cours...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Régénérer
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline"
+                        onClick={handleTranscribe}
+                        disabled={isTranscribing}
+                      >
+                        {isTranscribing ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Régénérer en cours...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Régénérer
+                          </>
+                        )}
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          // Déclencher l'optimisation via le composant TranscriptionDisplay
+                          const optimizeButton = document.querySelector('[data-optimize-button]') as HTMLButtonElement
+                          if (optimizeButton) {
+                            optimizeButton.click()
+                          }
+                        }}
+                        className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Optimiser
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardHeader>
