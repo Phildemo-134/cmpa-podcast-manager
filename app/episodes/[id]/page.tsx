@@ -18,7 +18,10 @@ import {
   Youtube,
   Music,
   FileText as FileTextIcon,
-  Sparkles
+  Sparkles,
+  CheckCircle,
+  Clock,
+  Cpu
 } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
@@ -43,6 +46,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+// Configuration des statuts pour affichage discret
+const statusConfig = {
+  draft: { label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-50', icon: Clock },
+  processing: { label: 'Traitement IA', color: 'text-purple-600', bg: 'bg-purple-50', icon: Cpu },
+  published: { label: 'Publié', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
+  failed: { label: 'Échec', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
+}
+
 
 
 export default function EpisodeDetailPage() {
@@ -60,6 +71,7 @@ export default function EpisodeDetailPage() {
   const [isEditingSpeakers, setIsEditingSpeakers] = useState(false) // New state for speakers editing
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false) // New state for description generation
   const [isGeneratingTimestamps, setIsGeneratingTimestamps] = useState(false) // New state for timestamps generation
+  const [isOptimizing, setIsOptimizing] = useState(false) // New state for optimization
 
   const [currentTime, setCurrentTime] = useState(0)
   
@@ -241,6 +253,78 @@ export default function EpisodeDetailPage() {
     } finally {
       setIsGeneratingTimestamps(false)
     }
+  }
+
+  const handleOptimizeTranscription = async () => {
+    if (!episode || !transcription) return
+
+    setIsOptimizing(true)
+    try {
+      // Générer le texte formaté pour l'optimisation
+      const formattedText = Array.isArray(transcription.timestamps)
+        ? transcription.timestamps
+            .map((timestamp: any) => {
+              if (timestamp.speaker && timestamp.text) {
+                const timeFormatted = formatTime(timestamp.start)
+                return `[${timeFormatted}] ${timestamp.speaker} : ${timestamp.text}`
+              }
+              return timestamp.text || ''
+            })
+            .filter(Boolean)
+            .join('\n')
+        : ''
+
+      const response = await fetch('/api/optimize-transcription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          transcriptionText: formattedText,
+          transcriptionId: transcription.id 
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erreur lors de l\'optimisation')
+      }
+
+      const { optimizedText } = await response.json()
+      
+      // Mettre à jour la transcription avec le texte optimisé
+      const updatedTranscription = {
+        ...transcription,
+        cleaned_text: optimizedText,
+        updated_at: new Date().toISOString()
+      }
+      
+      setTranscription(updatedTranscription)
+      
+      // Notifier le composant parent
+      if (handleTranscriptionUpdated) {
+        handleTranscriptionUpdated(updatedTranscription)
+      }
+      
+      alert('Transcription optimisée avec succès !')
+      
+    } catch (err) {
+      alert(`Erreur lors de l'optimisation: ${err instanceof Error ? err.message : 'Erreur inconnue'}`)
+    } finally {
+      setIsOptimizing(false)
+    }
+  }
+
+  // Fonction utilitaire pour formater le temps
+  const formatTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = Math.floor(seconds % 60)
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    }
+    return `${minutes}:${secs.toString().padStart(2, '0')}`
   }
 
   const handleSaveSpeakers = async () => {
@@ -545,7 +629,7 @@ export default function EpisodeDetailPage() {
                             onChange={(e) => setEditDescription(e.target.value)}
                             className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Description de l'épisode"
-                            rows={4}
+                            rows={15}
                           />
                         </div>
                         <div>
@@ -580,7 +664,7 @@ export default function EpisodeDetailPage() {
                             onChange={(e) => setEditTimestamps(e.target.value)}
                             className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Format: 00:00 - Introduction, 05:30 - Discussion principale, etc."
-                            rows={4}
+                            rows={15}
                           />
                         </div>
                         <div>
@@ -632,7 +716,23 @@ export default function EpisodeDetailPage() {
                       </div>
                     ) : (
                       <>
-                        <CardTitle className="text-2xl">{episode.title}</CardTitle>
+                        <div className="flex items-center gap-3">
+                          <CardTitle className="text-2xl">{episode.title}</CardTitle>
+                          
+                          {/* Statut discret à côté du titre */}
+                          {(() => {
+                            const status = statusConfig[episode.status]
+                            const StatusIcon = status.icon
+                            return (
+                              <div className={`px-2 py-1 rounded-full text-xs font-medium ${status.bg} ${status.color}`}>
+                                <div className="flex items-center gap-1">
+                                  <StatusIcon className="h-3 w-3" />
+                                  {status.label}
+                                </div>
+                              </div>
+                            )
+                          })()}
+                        </div>
                         
                         {/* Description rétractable */}
                         {episode.description && (
@@ -725,10 +825,6 @@ export default function EpisodeDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="mb-4">
-                  <EpisodeStatus status={episode.status} errorMessage={episode.error_message} />
-                </div>
-                
-                <div className="mb-4">
                   <Label className="text-sm font-medium text-gray-700 mb-2 block">
                     Modifier le statut
                   </Label>
@@ -738,6 +834,17 @@ export default function EpisodeDetailPage() {
                     isUpdating={isSaving}
                   />
                 </div>
+                
+                {/* Affichage des erreurs si nécessaire */}
+                {episode.status === 'failed' && episode.error_message && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <div className="flex items-center gap-2 text-red-600 mb-1">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-sm font-medium">Erreur de traitement</span>
+                    </div>
+                    <p className="text-sm text-red-600">{episode.error_message}</p>
+                  </div>
+                )}
                 
                 <EpisodeMetadata episode={episode} />
               </CardContent>
@@ -818,17 +925,21 @@ export default function EpisodeDetailPage() {
                       </Button>
                       <Button 
                         variant="outline"
-                        onClick={() => {
-                          // Déclencher l'optimisation via le composant TranscriptionDisplay
-                          const optimizeButton = document.querySelector('[data-optimize-button]') as HTMLButtonElement
-                          if (optimizeButton) {
-                            optimizeButton.click()
-                          }
-                        }}
+                        onClick={handleOptimizeTranscription}
+                        disabled={isOptimizing}
                         className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
                       >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Optimiser
+                        {isOptimizing ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Optimisation...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Optimiser
+                          </>
+                        )}
                       </Button>
                     </div>
                   )}
