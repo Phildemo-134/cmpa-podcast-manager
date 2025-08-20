@@ -17,6 +17,7 @@ export default function ScheduleTweetPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [scheduledTweets, setScheduledTweets] = useState<ScheduledTweet[]>([])
   const [showSuccess, setShowSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
   const [error, setError] = useState('')
 
   // Générer la date et heure actuelles pour le min de l'input
@@ -62,6 +63,7 @@ export default function ScheduleTweetPage() {
       setTweetContent('')
       setScheduledDate('')
       setScheduledTime('')
+      setSuccessMessage('Tweet planifié avec succès !')
       setShowSuccess(true)
       setError('')
       
@@ -121,6 +123,38 @@ export default function ScheduleTweetPage() {
     } catch (error) {
       console.error('Erreur lors de l\'annulation:', error)
       setError('Erreur lors de l\'annulation du tweet')
+    }
+  }
+
+  const handleDeleteTweet = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement cette publication ?')) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/schedule-tweet/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tweetId: id,
+          userId: user?.id
+        }),
+      })
+
+      if (response.ok) {
+        setScheduledTweets(prev => prev.filter(tweet => tweet.id !== id))
+        setSuccessMessage('Publication supprimée avec succès !')
+        setShowSuccess(true)
+        setTimeout(() => setShowSuccess(false), 3000)
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'Erreur lors de la suppression')
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+      setError('Erreur lors de la suppression du tweet')
     }
   }
 
@@ -250,7 +284,7 @@ export default function ScheduleTweetPage() {
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-green-800">
-                  Tweet planifié avec succès !
+                  {successMessage}
                 </p>
               </div>
             </div>
@@ -279,16 +313,26 @@ export default function ScheduleTweetPage() {
                         </span>
                       </div>
                     </div>
-                    {tweet.status === 'pending' && (
+                    <div className="flex gap-2">
+                      {tweet.status === 'pending' && (
+                        <Button
+                          onClick={() => handleCancelTweet(tweet.id)}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                          Annuler
+                        </Button>
+                      )}
                       <Button
-                        onClick={() => handleCancelTweet(tweet.id)}
+                        onClick={() => handleDeleteTweet(tweet.id)}
                         variant="outline"
                         size="sm"
-                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        className="text-gray-600 border-gray-300 hover:bg-gray-50"
                       >
-                        Annuler
+                        Supprimer
                       </Button>
-                    )}
+                    </div>
                   </div>
                 </Card>
               ))}
