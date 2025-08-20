@@ -704,7 +704,7 @@ export default function EpisodeDetailPage() {
               
               <div className="mb-4">
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Modifier le status
+                  Modifier le statut
                 </Label>
                 <StatusDropdown
                   currentStatus={episode.status}

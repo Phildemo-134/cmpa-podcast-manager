@@ -20,6 +20,12 @@ export default function DashboardPage() {
                   Dashboard
                 </a>
                 <a
+                  href="/schedule-tweet"
+                  className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Planifier Tweet
+                </a>
+                <a
                   href="/settings"
                   className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
                 >

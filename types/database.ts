@@ -218,6 +218,41 @@ export interface Database {
           updated_at?: string
         }
       }
+      scheduled_tweets: {
+        Row: {
+          id: string
+          user_id: string
+          content: string
+          scheduled_date: string
+          scheduled_time: string
+          status: 'pending' | 'published' | 'cancelled'
+          published_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          content: string
+          scheduled_date: string
+          scheduled_time: string
+          status?: 'pending' | 'published' | 'cancelled'
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          content?: string
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: 'pending' | 'published' | 'cancelled'
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -242,15 +277,18 @@ export type SocialConnection = Database['public']['Tables']['social_connections'
 export type Episode = Database['public']['Tables']['episodes']['Row']
 export type Transcription = Database['public']['Tables']['transcriptions']['Row']
 export type Subscription = Database['public']['Tables']['subscriptions']['Row']
+export type ScheduledTweet = Database['public']['Tables']['scheduled_tweets']['Row']
 
 export type UserInsert = Database['public']['Tables']['users']['Insert']
 export type SocialConnectionInsert = Database['public']['Tables']['social_connections']['Insert']
 export type EpisodeInsert = Database['public']['Tables']['episodes']['Insert']
 export type TranscriptionInsert = Database['public']['Tables']['transcriptions']['Insert']
 export type SubscriptionInsert = Database['public']['Tables']['subscriptions']['Insert']
+export type ScheduledTweetInsert = Database['public']['Tables']['scheduled_tweets']['Insert']
 
 export type UserUpdate = Database['public']['Tables']['users']['Update']
 export type SocialConnectionUpdate = Database['public']['Tables']['social_connections']['Update']
 export type EpisodeUpdate = Database['public']['Tables']['episodes']['Update']
 export type TranscriptionUpdate = Database['public']['Tables']['transcriptions']['Update']
 export type SubscriptionUpdate = Database['public']['Tables']['subscriptions']['Update']
+export type ScheduledTweetUpdate = Database['public']['Tables']['scheduled_tweets']['Update']

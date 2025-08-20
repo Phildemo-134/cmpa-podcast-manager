@@ -17,7 +17,14 @@
     "test:speakers": "npx tsx lib/test-speaker-editing.ts",
 
     "s3:setup": "./scripts/setup-s3.sh",
-    "s3:test": "npx tsx lib/test-s3.ts"
+    "s3:test": "npx tsx lib/test-s3.ts",
+    
+    "test:cron": "node scripts/test-cron-job.js",
+    "test:twitter": "node scripts/test-twitter-api.js",
+    "create:test-tweets": "node scripts/create-test-tweets.js",
+    "scheduler": "node scripts/tweet-scheduler.js",
+    "scheduler:watch": "node scripts/tweet-scheduler.js --watch",
+    "cleanup:test-tweets": "node scripts/cleanup-test-tweets.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.59.0",
