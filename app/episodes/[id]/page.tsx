@@ -32,6 +32,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Episode, Transcription } from '../../../types/database'
 import { SpeakerEditor } from '../../../components/episodes/speaker-editor'
 import { StatusDropdown } from '../../../components/episodes/status-dropdown'
+import { TweetGenerator } from '../../../components/episodes/tweet-generator'
 import { youtubeAcces, youtubeAbonnement, spotifyAcces, spotifyAbonnement } from '../../../lib/donnees-publication'
 
 const supabase = createClient(
@@ -830,6 +831,12 @@ export default function EpisodeDetailPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Publication Réseaux Sociaux */}
+          <TweetGenerator 
+            episodeId={episode.id}
+            hasTranscription={!!transcription && transcription.processing_status === 'completed'}
+          />
 
           {/* Additional Info */}
           {episode.video_url && (

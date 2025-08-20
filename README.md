@@ -46,6 +46,10 @@ date, status, durée, descriptions relatives aux différentes plateformes.
 
 ##### 5. Création de Contenu Social
 - **Posts Twitter/X** : Threads et posts individuels optimisés
+- **Génération automatique de tweets** : 10-15 tweets par épisode avec IA Claude
+- **Tweets intelligents** : Basés sur la transcription, ton et style adaptés
+- **Respect des limites** : Maximum 200 caractères par tweet
+- **Hashtags pertinents** : 2-3 hashtags par tweet maximum
 - **Posts LinkedIn** : Contenu professionnel long-form adapté
 - **Brouillons sauvegardés** : Stockage pour publication ultérieure
 
@@ -200,7 +204,8 @@ Transcription {
   - [x] Intégrer l'authentification OAuth pour les réseaux sociaux
   - [ ] Développer les fonctionnalités de publication automatique sur X/Twitter
   - [ ] Implémenter la publication automatique sur LinkedIn
-  - [ ] Créer le système de suivi des statuts de publication
+  - [x] Créer le système de suivi des statuts de publication
+  - [x] Génération automatique de tweets basés sur la transcription
   - [ ] Mettre en place la gestion d'erreurs pour les publications
 
 #### Phase 5 : Finalisation et lancement (1 semaine)

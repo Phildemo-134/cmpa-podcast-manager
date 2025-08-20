@@ -21,6 +21,7 @@
     
     "test:cron": "node scripts/test-cron-job.js",
     "test:twitter": "node scripts/test-twitter-api.js",
+    "test:tweets": "node scripts/test-tweet-generation.js",
     "create:test-tweets": "node scripts/create-test-tweets.js",
     "scheduler": "node scripts/tweet-scheduler.js",
     "scheduler:watch": "node scripts/tweet-scheduler.js --watch",
