@@ -1,4 +1,4 @@
--- Script de configuration OAuth2 pour CMPA Podcast Manager
+-- Script de configuration OAuth2 pour Podcast Manager
 -- À exécuter dans l'interface SQL de Supabase
 
 -- 1. Table pour stocker les états OAuth2 (protection CSRF)

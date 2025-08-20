@@ -26,7 +26,7 @@ const INTERVALS = {
 const TEST_CONFIG = {
   TWEET_SUCCESS_RATE: 0.9, // 90% de succès pour les tests simulés
   MAX_TWEET_LENGTH: 280,
-  TEST_TWEET_PREFIX: '🧪 Test CMPA'
+  TEST_TWEET_PREFIX: '🧪 Test Podcast Manager'
 }
 
 module.exports = {

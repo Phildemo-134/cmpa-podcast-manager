@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script de configuration S3 pour CMPA Podcast Manager
+# Script de configuration S3 pour Podcast Manager
 # Ce script configure un bucket S3 avec les bonnes permissions et politiques
 
 set -e
@@ -11,7 +11,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}🚀 Configuration S3 pour CMPA Podcast Manager${NC}"
+echo -e "${GREEN}🚀 Configuration S3 pour Podcast Manager${NC}"
 
 # Vérifier que AWS CLI est installé
 if ! command -v aws &> /dev/null; then
@@ -149,11 +149,11 @@ cat > /tmp/app-policy.json << EOF
 }
 EOF
 
-POLICY_NAME="CMPAPodcastManagerS3Policy"
+POLICY_NAME="PodcastManagerS3Policy"
 aws iam create-policy \
     --policy-name "$POLICY_NAME" \
     --policy-document file:///tmp/app-policy.json \
-    --description "Politique S3 pour CMPA Podcast Manager" 2>/dev/null || \
+    --description "Politique S3 pour Podcast Manager" 2>/dev/null || \
 echo -e "${YELLOW}⚠️  La politique existe déjà${NC}"
 
 echo -e "${GREEN}✅ Politique IAM créée: $POLICY_NAME${NC}"

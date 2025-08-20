@@ -103,7 +103,7 @@ async function showCurrentStatus() {
  * Fonction principale
  */
 async function main() {
-  console.log('🧹 Nettoyage des Tweets de Test CMPA')
+  console.log('🧹 Nettoyage des Tweets de Test Podcast Manager')
   console.log('=' .repeat(50))
   
   try {

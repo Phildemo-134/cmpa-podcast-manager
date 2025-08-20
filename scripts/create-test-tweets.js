@@ -111,7 +111,7 @@ function generateTestDates() {
  * Contenu des tweets de test
  */
 const testTweets = [
-  "🎙️ Test du planificateur de tweets CMPA ! Premier tweet automatique.",
+  "🎙️ Test du planificateur de tweets Podcast Manager ! Premier tweet automatique.",
   "🚀 La planification de tweets fonctionne parfaitement ! Deuxième test.",
   "✨ Système de publication automatique opérationnel. Troisième et dernier test."
 ]

@@ -1,7 +1,7 @@
 # ✅ Phase 1 - Étape 1 COMPLÉTÉE : Initialisation du projet Next.js
 
 ## 🎯 Objectif Atteint
-L'étape 1 de la Phase 1 du projet CMPA Podcast Manager a été **complétée avec succès**. Le projet Next.js est maintenant entièrement initialisé et configuré selon les spécifications du cahier des charges.
+L'étape 1 de la Phase 1 du projet Podcast Manager a été **complétée avec succès**. Le projet Next.js est maintenant entièrement initialisé et configuré selon les spécifications du cahier des charges.
 
 ## 🚀 Ce qui a été accompli
 

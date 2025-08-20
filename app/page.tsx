@@ -14,7 +14,7 @@ export default function Home() {
                 <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                   <Mic className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-xl font-bold text-foreground">CMPA</span>
+                <span className="text-xl font-bold text-foreground">Podcast Manager</span>
               </div>
               <nav className="hidden md:flex items-center space-x-8">
                 <Link href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -157,7 +157,7 @@ export default function Home() {
                 Prêt à transformer votre workflow de podcasts ?
               </h2>
               <p className="mt-4 text-lg leading-8 text-muted-foreground">
-                Rejoignez des centaines de créateurs qui utilisent déjà CMPA pour automatiser leur production de contenu.
+                Rejoignez des centaines de créateurs qui utilisent déjà Podcast Manager pour automatiser leur production de contenu.
               </p>
               <div className="mt-8">
                 <Link
@@ -184,7 +184,7 @@ export default function Home() {
                   <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                     <Mic className="h-5 w-5 text-primary-foreground" />
                   </div>
-                  <span className="text-xl font-bold text-foreground">CMPA</span>
+                  <span className="text-xl font-bold text-foreground">Podcast Manager</span>
                 </div>
                 <p className="mt-4 text-sm text-muted-foreground">
                   La solution complète pour la gestion et le traitement automatisé de vos podcasts.
@@ -221,7 +221,7 @@ export default function Home() {
             
             <div className="mt-12 border-t border-border/40 pt-8 text-center">
               <p className="text-sm text-muted-foreground">
-                © 2024 CMPA Podcast Manager. Tous droits réservés.
+                © 2024 Podcast Manager Podcast Manager. Tous droits réservés.
               </p>
             </div>
           </div>

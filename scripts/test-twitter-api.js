@@ -59,7 +59,7 @@ async function testTwitterAPI() {
     
     // 3. Test de l'API Twitter
     console.log('\n3️⃣ Test de publication sur Twitter...')
-    const testContent = `🧪 Test de l'API Twitter CMPA - ${new Date().toLocaleString('fr-FR')}`
+    const testContent = `🧪 Test de l'API Twitter Podcast Manager - ${new Date().toLocaleString('fr-FR')}`
     
     const response = await fetch(URLS.TWITTER_POST_SCHEDULED, {
       method: 'POST',

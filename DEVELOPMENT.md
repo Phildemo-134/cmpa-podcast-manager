@@ -1,4 +1,4 @@
-# Guide de Développement - CMPA Podcast Manager
+# Guide de Développement - Podcast Manager
 
 ## 🚀 Démarrage Rapide
 

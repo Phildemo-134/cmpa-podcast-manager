@@ -68,7 +68,7 @@ async function testTweetCreation() {
     const { data: tweet, error: tweetError } = await supabase
       .from('scheduled_tweets')
       .insert({
-        content: '🧪 Test rapide du système de planification CMPA',
+        content: '🧪 Test rapide du système de planification Podcast Manager',
         scheduled_date: scheduledDate,
         scheduled_time: scheduledTime,
         user_id: user.id,
@@ -191,7 +191,7 @@ async function cleanupTestTweet(tweetId) {
  * Fonction principale
  */
 async function main() {
-  console.log('🧪 Test Rapide du Système de Planification CMPA')
+  console.log('🧪 Test Rapide du Système de Planification Podcast Manager')
   console.log('=' .repeat(60))
   
   let testTweet = null

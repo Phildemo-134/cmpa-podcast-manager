@@ -1,4 +1,4 @@
-# Migration vers Amazon S3 - CMPA Podcast Manager
+# Migration vers Amazon S3 - Podcast Manager
 
 Ce document décrit la migration complète du stockage des fichiers audio de Supabase Storage vers Amazon S3.
 

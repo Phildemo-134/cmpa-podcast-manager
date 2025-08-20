@@ -88,7 +88,7 @@ node scripts/cleanup-test-tweets.js
 
 ### Exemple de Sortie du Planificateur
 ```
-🚀 Planificateur de Tweets CMPA
+🚀 Planificateur de Tweets Podcast Manager
 Mode: Surveillance continue
 
 ✅ Connexion à Supabase établie
@@ -101,9 +101,9 @@ Appuyez sur Ctrl+C pour arrêter
 📋 1 tweet(s) trouvé(s) à publier
 
 🚀 Publication du tweet ID: 123e4567-e89b-12d3-a456-426614174000
-📝 Contenu: 🎙️ Test du planificateur de tweets CMPA ! Premier tweet automatique.
+📝 Contenu: 🎙️ Test du planificateur de tweets Podcast Manager ! Premier tweet automatique.
 📅 Planifié pour: 2025-01-15 à 14:30
-🐦 Publication du tweet: "🎙️ Test du planificateur de tweets CMPA ! Premier tweet automatique."
+🐦 Publication du tweet: "🎙️ Test du planificateur de tweets Podcast Manager ! Premier tweet automatique."
 ✅ Tweet publié avec succès sur Twitter
 ✅ Statut mis à jour: published
 ────────────────────────────────────────
@@ -120,7 +120,7 @@ Appuyez sur Ctrl+C pour arrêter
 
 📅 Création des tweets de test...
 
-✅ Tweet créé: "🎙️ Test du planificateur de tweets CMPA ! Premier tweet automatique."
+✅ Tweet créé: "🎙️ Test du planificateur de tweets Podcast Manager ! Premier tweet automatique."
    Planifié pour: 2025-01-15 à 14:30
    ID: 123e4567-e89b-12d3-a456-426614174000
    dans 1 minute

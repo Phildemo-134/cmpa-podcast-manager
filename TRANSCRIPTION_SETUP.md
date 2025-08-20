@@ -1,6 +1,6 @@
 # Configuration de la Transcription Audio avec Deepgram
 
-Ce document explique comment configurer et utiliser la transcription audio automatique dans l'application CMPA Podcast Manager.
+Ce document explique comment configurer et utiliser la transcription audio automatique dans l'application Podcast Manager.
 
 ## 🚀 Configuration
 

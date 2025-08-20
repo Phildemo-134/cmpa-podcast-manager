@@ -1,4 +1,4 @@
--- Migration Supabase Cloud - CMPA Podcast Manager
+-- Migration Supabase Cloud - Podcast Manager
 -- Exécuter ce fichier dans le SQL Editor de votre dashboard Supabase
 
 -- 1. Table des épisodes (structure complète)

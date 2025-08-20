@@ -1,4 +1,4 @@
-// Types de base pour l'application CMPA Podcast Manager
+// Types de base pour l'application Podcast Manager
 
 export interface User {
   id: string;

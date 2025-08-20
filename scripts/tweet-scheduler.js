@@ -179,7 +179,7 @@ async function main() {
   const args = process.argv.slice(2)
   const isWatchMode = args.includes('--watch')
   
-  console.log('🚀 Planificateur de Tweets CMPA')
+  console.log('🚀 Planificateur de Tweets Podcast Manager')
   console.log('Mode:', isWatchMode ? 'Surveillance continue' : 'Exécution unique')
   console.log('')
   

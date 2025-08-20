@@ -32,9 +32,9 @@ export const metadata: Metadata = {
     "LinkedIn",
     "Twitter",
   ],
-  authors: [{ name: "CMPA Team" }],
+  authors: [{ name: "Podcast Manager Team" }],
   creator: "Podcast Manager",
-  publisher: "CMPA",
+  publisher: "Podcast Manager",
   formatDetection: {
     email: false,
     address: false,

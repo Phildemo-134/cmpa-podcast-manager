@@ -1,4 +1,4 @@
-# CMPA Podcast Manager
+# Podcast Manager
 
 Application web de gestion et traitement automatisé de podcasts pour la création de contenu multi-plateforme.
 

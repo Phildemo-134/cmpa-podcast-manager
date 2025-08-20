@@ -305,8 +305,7 @@ export default function ScheduleTweetPage() {
                       <p className="text-gray-900 mb-2">{tweet.content}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span>
-                          Publié le {new Date(`${tweet.scheduled_date}T${tweet.scheduled_time}`).toLocaleDateString('fr-FR')} 
-                          à {tweet.scheduled_time}
+                          Publié le {new Date(`${tweet.scheduled_date}T${tweet.scheduled_time}`).toLocaleDateString('fr-FR')} à {tweet.scheduled_time}
                         </span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(tweet.status)}`}>
                           {getStatusText(tweet.status)}

@@ -1,4 +1,4 @@
-# Guide de configuration Twitter OAuth2 pour CMPA Podcast Manager
+# Guide de configuration Twitter OAuth2 pour Podcast Manager
 
 ## Vue d'ensemble
 
@@ -11,7 +11,7 @@ Ce guide détaille chaque étape de la configuration Twitter OAuth2 pour permett
 2. Connectez-vous avec votre compte Twitter
 3. Cliquez sur "Create App" ou "Create Project"
 4. Remplissez les informations de base :
-   - **Project Name**: `CMPA Podcast Manager`
+   - **Project Name**: `Podcast Manager`
    - **Use Case**: Sélectionnez "Making a bot" ou "Exploring the API"
    - **Description**: `Application pour publier automatiquement des épisodes de podcasts sur Twitter`
 
