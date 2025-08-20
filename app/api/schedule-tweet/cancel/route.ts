@@ -7,39 +7,62 @@ const supabase = createClient<Database>(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function PUT(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { tweetId, userId } = await request.json()
+    const { tweetId } = await request.json()
 
-    if (!tweetId || !userId) {
+    if (!tweetId) {
       return NextResponse.json(
-        { error: 'ID du tweet et ID utilisateur requis' },
+        { error: 'ID du tweet requis' },
         { status: 400 }
       )
     }
 
-    // Vérifier que le tweet appartient à l'utilisateur et peut être annulé
+    // Vérifier que le tweet existe et n'est pas déjà publié
     const { data: existingTweet, error: fetchError } = await supabase
       .from('scheduled_tweets')
       .select('*')
       .eq('id', tweetId)
-      .eq('user_id', userId)
-      .eq('status', 'pending')
       .single()
 
     if (fetchError || !existingTweet) {
       return NextResponse.json(
-        { error: 'Tweet non trouvé ou ne peut pas être annulé' },
+        { error: 'Tweet non trouvé' },
         { status: 404 }
       )
+    }
+
+    if (existingTweet.status === 'published') {
+      return NextResponse.json(
+        { error: 'Impossible d\'annuler un tweet déjà publié' },
+        { status: 400 }
+      )
+    }
+
+    // Préparer les données de mise à jour
+    const updateData: any = {
+      status: 'cancelled'
+    }
+
+    // Ajouter updated_at si la colonne existe
+    try {
+      const { error: checkError } = await supabase
+        .from('scheduled_tweets')
+        .select('updated_at')
+        .limit(1)
+
+      if (!checkError) {
+        updateData.updated_at = new Date().toISOString()
+      }
+    } catch (columnError) {
+      console.log('Colonne updated_at non disponible')
     }
 
     // Mettre à jour le statut du tweet
     const { data, error } = await supabase
       .from('scheduled_tweets')
-      .update({ status: 'cancelled' })
+      .update(updateData)
       .eq('id', tweetId)
-      .eq('user_id', userId)
       .select()
       .single()
 

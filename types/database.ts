@@ -225,8 +225,10 @@ export interface Database {
           content: string
           scheduled_date: string
           scheduled_time: string
-          status: 'pending' | 'published' | 'cancelled'
+          status: 'pending' | 'published' | 'cancelled' | 'failed'
           published_at: string | null
+          episode_id: string | null
+          metadata: Json | null
           created_at: string
           updated_at: string
         }
@@ -236,8 +238,10 @@ export interface Database {
           content: string
           scheduled_date: string
           scheduled_time: string
-          status?: 'pending' | 'published' | 'cancelled'
+          status?: 'pending' | 'published' | 'cancelled' | 'failed'
           published_at?: string | null
+          episode_id?: string | null
+          metadata?: Json | null
           created_at?: string
           updated_at?: string
         }
@@ -247,8 +251,10 @@ export interface Database {
           content?: string
           scheduled_date?: string
           scheduled_time?: string
-          status?: 'pending' | 'published' | 'cancelled'
+          status?: 'pending' | 'published' | 'cancelled' | 'failed'
           published_at?: string | null
+          episode_id?: string | null
+          metadata?: Json | null
           created_at?: string
           updated_at?: string
         }

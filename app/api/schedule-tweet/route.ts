@@ -9,36 +9,78 @@ const supabase = createClient<Database>(
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, scheduledDate, scheduledTime, userId } = await request.json()
+    const { content, hashtags, scheduledAt, episodeId } = await request.json()
 
-    if (!content || !scheduledDate || !scheduledTime || !userId) {
+    if (!content || !scheduledAt || !episodeId) {
       return NextResponse.json(
-        { error: 'Tous les champs sont requis' },
+        { error: 'Contenu, date de planification et ID de l\'épisode sont requis' },
         { status: 400 }
       )
     }
 
-    // Vérifier que la date et l'heure sont dans le futur
-    const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`)
+    // Vérifier que la date est dans le futur
+    const scheduledDateTime = new Date(scheduledAt)
     const now = new Date()
     
     if (scheduledDateTime <= now) {
       return NextResponse.json(
-        { error: 'La date et l\'heure doivent être dans le futur' },
+        { error: 'La date de planification doit être dans le futur' },
         { status: 400 }
       )
+    }
+
+    // Récupérer l'utilisateur à partir de l'épisode
+    const { data: episode, error: episodeError } = await supabase
+      .from('episodes')
+      .select('user_id')
+      .eq('id', episodeId)
+      .single()
+
+    if (episodeError || !episode) {
+      return NextResponse.json(
+        { error: 'Épisode non trouvé' },
+        { status: 404 }
+      )
+    }
+
+    // Préparer le contenu du tweet avec hashtags
+    const tweetContent = hashtags && hashtags.length > 0 
+      ? `${content} ${hashtags.map((tag: string) => `#${tag}`).join(' ')}`
+      : content
+
+    // Préparer les données d'insertion
+    const insertData: any = {
+      content: tweetContent,
+      scheduled_date: scheduledDateTime.toISOString().split('T')[0],
+      scheduled_time: scheduledDateTime.toTimeString().split(' ')[0],
+      user_id: episode.user_id,
+      status: 'pending'
+    }
+
+    // Ajouter episode_id et metadata si les colonnes existent
+    try {
+      // Vérifier si la colonne episode_id existe
+      const { error: checkError } = await supabase
+        .from('scheduled_tweets')
+        .select('episode_id')
+        .limit(1)
+
+      if (!checkError) {
+        insertData.episode_id = episodeId
+        insertData.metadata = {
+          original_content: content,
+          hashtags: hashtags || [],
+          episode_id: episodeId
+        }
+      }
+    } catch (columnError) {
+      console.log('Colonnes episode_id et metadata non disponibles, utilisation de la structure de base')
     }
 
     // Insérer le tweet planifié dans la base de données
     const { data, error } = await supabase
       .from('scheduled_tweets')
-      .insert({
-        content,
-        scheduled_date: scheduledDate,
-        scheduled_time: scheduledTime,
-        user_id: userId,
-        status: 'pending'
-      })
+      .insert(insertData)
       .select()
       .single()
 
@@ -52,7 +94,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      tweet: data 
+      tweet: data,
+      scheduledFor: scheduledDateTime.toISOString()
     })
 
   } catch (error) {
@@ -67,21 +110,43 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
+    const episodeId = searchParams.get('episodeId')
     const userId = searchParams.get('userId')
 
-    if (!userId) {
+    if (!episodeId && !userId) {
       return NextResponse.json(
-        { error: 'ID utilisateur requis' },
+        { error: 'ID de l\'épisode ou ID utilisateur requis' },
         { status: 400 }
       )
     }
 
-    // Récupérer tous les tweets planifiés de l'utilisateur
-    const { data, error } = await supabase
+    let query = supabase
       .from('scheduled_tweets')
       .select('*')
-      .eq('user_id', userId)
       .order('scheduled_date', { ascending: true })
+
+    try {
+      // Vérifier si la colonne episode_id existe
+      const { error: checkError } = await supabase
+        .from('scheduled_tweets')
+        .select('episode_id')
+        .limit(1)
+
+      if (!checkError && episodeId) {
+        // Utiliser episode_id si disponible
+        query = query.eq('episode_id', episodeId)
+      } else if (userId) {
+        // Fallback sur user_id
+        query = query.eq('user_id', userId)
+      }
+    } catch (columnError) {
+      console.log('Colonne episode_id non disponible, utilisation de user_id')
+      if (userId) {
+        query = query.eq('user_id', userId)
+      }
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.error('Erreur Supabase:', error)

@@ -17,6 +17,9 @@ Cette fonctionnalité permet de générer automatiquement entre 10 et 15 tweets 
 - **Cards individuelles** : Chaque tweet dans sa propre card
 - **Compteur de caractères** : Affichage du nombre de caractères (X/200)
 - **Boutons de copie** : Copie individuelle ou globale des tweets
+- **Bouton d'édition** : Modification du contenu et des hashtags
+- **Bouton de planification** : Planification de la publication
+- **Section tweets planifiés** : Affichage et gestion des tweets programmés
 
 ### 🔧 Fonctionnalités Techniques
 - **Validation des tweets** : Vérification automatique de la limite de caractères
@@ -69,6 +72,8 @@ POST /api/generate-tweets
 ### 3. Utilisation des Tweets
 - **Copie individuelle** : Bouton copie sur chaque tweet
 - **Copie globale** : Bouton "Copier tout" pour tous les tweets
+- **Édition** : Bouton "Éditer" pour modifier le contenu et les hashtags
+- **Planification** : Bouton "Planifier" pour programmer la publication
 - **Régénération** : Bouton "Régénérer" pour de nouveaux tweets
 
 ## Configuration
@@ -86,16 +91,23 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ## Tests
 
-### Script de Test
+### Scripts de Test
 ```bash
-npm run test:tweets
+npm run test:tweets        # Test de génération de tweets
+npm run test:scheduling    # Test de planification et gestion
 ```
 
-Le script teste :
+Le script de génération teste :
 - Récupération d'un épisode avec transcription
 - Appel de l'API de génération
 - Validation des tweets générés
 - Vérification de la limite de caractères
+
+Le script de planification teste :
+- Planification d'un tweet
+- Récupération des tweets planifiés
+- Annulation d'un tweet
+- Gestion des statuts
 
 ## Limitations et Améliorations Futures
 

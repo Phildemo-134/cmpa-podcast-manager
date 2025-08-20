@@ -67,3 +67,45 @@ COMMENT ON COLUMN public.scheduled_tweets.scheduled_date IS 'Date de publication
 COMMENT ON COLUMN public.scheduled_tweets.scheduled_time IS 'Heure de publication planifiée';
 COMMENT ON COLUMN public.scheduled_tweets.status IS 'Statut du tweet: pending, published, ou cancelled';
 COMMENT ON COLUMN public.scheduled_tweets.published_at IS 'Timestamp de publication effective (si publié)';
+
+-- Migration pour ajouter les colonnes manquantes à la table scheduled_tweets
+-- Ajout de episode_id et metadata pour supporter la planification par épisode
+
+-- Ajouter la colonne episode_id
+ALTER TABLE scheduled_tweets 
+ADD COLUMN IF NOT EXISTS episode_id UUID REFERENCES episodes(id) ON DELETE CASCADE;
+
+-- Ajouter la colonne metadata (JSONB pour stocker les informations supplémentaires)
+ALTER TABLE scheduled_tweets 
+ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+
+-- Ajouter un index sur episode_id pour améliorer les performances
+CREATE INDEX IF NOT EXISTS idx_scheduled_tweets_episode_id 
+ON scheduled_tweets(episode_id);
+
+-- Ajouter un index sur metadata pour les requêtes JSON
+CREATE INDEX IF NOT EXISTS idx_scheduled_tweets_metadata 
+ON scheduled_tweets USING GIN (metadata);
+
+-- Mettre à jour les types dans l'enum status pour inclure 'failed'
+ALTER TYPE scheduled_tweet_status RENAME TO scheduled_tweet_status_old;
+
+CREATE TYPE scheduled_tweet_status AS ENUM (
+  'pending',
+  'published', 
+  'cancelled',
+  'failed'
+);
+
+-- Mettre à jour la colonne status
+ALTER TABLE scheduled_tweets 
+ALTER COLUMN status TYPE scheduled_tweet_status 
+USING status::text::scheduled_tweet_status;
+
+-- Supprimer l'ancien type
+DROP TYPE scheduled_tweet_status_old;
+
+-- Commentaires sur les nouvelles colonnes
+COMMENT ON COLUMN scheduled_tweets.episode_id IS 'Référence vers l''épisode associé au tweet';
+COMMENT ON COLUMN scheduled_tweets.metadata IS 'Métadonnées JSON du tweet (contenu original, hashtags, etc.)';
+COMMENT ON COLUMN scheduled_tweets.status IS 'Statut du tweet: pending, published, cancelled, failed';

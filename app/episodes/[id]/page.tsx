@@ -33,6 +33,7 @@ import { Episode, Transcription } from '../../../types/database'
 import { SpeakerEditor } from '../../../components/episodes/speaker-editor'
 import { StatusDropdown } from '../../../components/episodes/status-dropdown'
 import { TweetGenerator } from '../../../components/episodes/tweet-generator'
+import { ScheduledTweets } from '../../../components/episodes/scheduled-tweets'
 import { youtubeAcces, youtubeAbonnement, spotifyAcces, spotifyAbonnement } from '../../../lib/donnees-publication'
 
 const supabase = createClient(
@@ -837,6 +838,9 @@ export default function EpisodeDetailPage() {
             episodeId={episode.id}
             hasTranscription={!!transcription && transcription.processing_status === 'completed'}
           />
+
+          {/* Tweets Planifiés */}
+          <ScheduledTweets episodeId={episode.id} />
 
           {/* Additional Info */}
           {episode.video_url && (
