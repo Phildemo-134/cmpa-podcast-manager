@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Erreur interne du serveur',
-        details: error.message
+        details: error instanceof Error ? error.message : 'Erreur inconnue'
       },
       { status: 500 }
     )

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CMPA Podcast Manager - Gestion et traitement automatisé de podcasts",
-    template: "%s | CMPA Podcast Manager",
+    default: "Podcast Manager - Gestion et traitement automatisé de podcasts",
+    template: "%s | Podcast Manager",
   },
   description: "Transformez vos podcasts en contenu multi-plateforme avec l'intelligence artificielle. Transcription automatique, génération de descriptions et publication sur les réseaux sociaux.",
   keywords: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     "Twitter",
   ],
   authors: [{ name: "CMPA Team" }],
-  creator: "CMPA Podcast Manager",
+  creator: "Podcast Manager",
   publisher: "CMPA",
   formatDetection: {
     email: false,
@@ -48,21 +48,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     url: "https://cmpa-podcast-manager.com",
-    title: "CMPA Podcast Manager - Gestion et traitement automatisé de podcasts",
+    title: "Podcast Manager - Gestion et traitement automatisé de podcasts",
     description: "Transformez vos podcasts en contenu multi-plateforme avec l'intelligence artificielle.",
-    siteName: "CMPA Podcast Manager",
+    siteName: "Podcast Manager",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "CMPA Podcast Manager",
+        alt: "Podcast Manager",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CMPA Podcast Manager - Gestion et traitement automatisé de podcasts",
+    title: "Podcast Manager - Gestion et traitement automatisé de podcasts",
     description: "Transformez vos podcasts en contenu multi-plateforme avec l'intelligence artificielle.",
     images: ["/og-image.jpg"],
   },
