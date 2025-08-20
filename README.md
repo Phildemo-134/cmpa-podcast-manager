@@ -196,13 +196,13 @@ Transcription {
        - Descriptions optimisées pour blog
        - Descriptions adaptées à YouTube
        - Descriptions formatées pour Spotify
-  - [ ] Implémenter la génération de publications pour réseaux sociaux
+  - [x] Implémenter la génération de publications pour réseaux sociaux
   - [x] Créer les fonctionnalités de prévisualisation et d'édition
   - [x] Mettre en place le stockage et la gestion du contenu généré
 
 #### Phase 4 : Intégration aux plateformes (1-2 semaines)
   - [x] Intégrer l'authentification OAuth pour les réseaux sociaux
-  - [ ] Développer les fonctionnalités de publication automatique sur X/Twitter
+  - [x] Développer les fonctionnalités de publication automatique sur X/Twitter
   - [ ] Implémenter la publication automatique sur LinkedIn
   - [x] Créer le système de suivi des statuts de publication
   - [x] Génération automatique de tweets basés sur la transcription

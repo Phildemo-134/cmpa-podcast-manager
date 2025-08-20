@@ -35,6 +35,7 @@ import { StatusDropdown } from '../../../components/episodes/status-dropdown'
 import { TweetGenerator } from '../../../components/episodes/tweet-generator'
 import { ScheduledTweets } from '../../../components/episodes/scheduled-tweets'
 import { youtubeAcces, youtubeAbonnement, spotifyAcces, spotifyAbonnement } from '../../../lib/donnees-publication'
+import { ProtectedRoute } from '../../../components/auth/protected-route'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -447,199 +448,138 @@ export default function EpisodeDetailPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push('/dashboard')}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour
-              </Button>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Détails de l'épisode
-              </h1>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push('/dashboard')}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour
+                </Button>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Détails de l'épisode
+                </h1>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
-          {/* Episode Header */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  {isEditing ? (
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="title">Titre</Label>
-                        <Input
-                          id="title"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <Label htmlFor="description">Description</Label>
-                          {transcription && transcription.processing_status === 'completed' && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={handleGenerateDescription}
-                              disabled={isGeneratingDescription}
-                              className="text-sm"
-                            >
-                              {isGeneratingDescription ? (
-                                <>
-                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                  Génération...
-                                </>
-                              ) : (
-                                <>
-                                  <RefreshCw className="h-3 w-3 mr-1" />
-                                  Générer
-                                </>
-                              )}
-                            </Button>
-                          )}
+        {/* Main Content */}
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            {/* Episode Header */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    {isEditing ? (
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="title">Titre</Label>
+                          <Input
+                            id="title"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            className="mt-1"
+                          />
                         </div>
-                        <textarea
-                          id="description"
-                          value={editDescription}
-                          onChange={(e) => setEditDescription(e.target.value)}
-                          className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Description de l'épisode"
-                          rows={4}
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <Label htmlFor="timestamps">Timestamps</Label>
-                          {transcription && transcription.processing_status === 'completed' && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={handleGenerateTimestamps}
-                              disabled={isGeneratingTimestamps}
-                              className="text-sm"
-                            >
-                              {isGeneratingTimestamps ? (
-                                <>
-                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                  Génération...
-                                </>
-                              ) : (
-                                <>
-                                  <RefreshCw className="h-3 w-3 mr-1" />
-                                  Générer
-                                </>
-                              )}
-                            </Button>
-                          )}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <Label htmlFor="description">Description</Label>
+                            {transcription && transcription.processing_status === 'completed' && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleGenerateDescription}
+                                disabled={isGeneratingDescription}
+                                className="text-sm"
+                              >
+                                {isGeneratingDescription ? (
+                                  <>
+                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    Génération...
+                                  </>
+                                ) : (
+                                  <>
+                                    <RefreshCw className="h-3 w-3 mr-1" />
+                                    Générer
+                                  </>
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                          <textarea
+                            id="description"
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Description de l'épisode"
+                            rows={4}
+                          />
                         </div>
-                        <textarea
-                          id="timestamps"
-                          value={editTimestamps}
-                          onChange={(e) => setEditTimestamps(e.target.value)}
-                          className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Format: 00:00 - Introduction, 05:30 - Discussion principale, etc."
-                          rows={4}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="videoUrl">URL Vidéo (optionnel)</Label>
-                        <Input
-                          id="videoUrl"
-                          value={editVideoUrl}
-                          onChange={(e) => setEditVideoUrl(e.target.value)}
-                          className="mt-1"
-                          placeholder="https://youtube.com/..."
-                        />
-                      </div>
-                      
-                      {/* Boutons de copie pour les plateformes */}
-                      <div className="pt-4 border-t">
-                        <Label className="text-sm font-medium text-gray-700 mb-3 block">
-                          Copier pour publication
-                        </Label>
-                        <div className="flex gap-3">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCopyToYoutube}
-                            className="flex-1"
-                          >
-                            <Youtube className="h-4 w-4 mr-2" />
-                            Copier sur YouTube
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCopyToSpotify}
-                            className="flex-1"
-                          >
-                            <Music className="h-4 w-4 mr-2" />
-                            Copier sur Spotify
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCopyToBlog}
-                            className="flex-1"
-                          >
-                            <FileTextIcon className="h-4 w-4 mr-2" />
-                            Copier pour Blog
-                          </Button>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <Label htmlFor="timestamps">Timestamps</Label>
+                            {transcription && transcription.processing_status === 'completed' && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleGenerateTimestamps}
+                                disabled={isGeneratingTimestamps}
+                                className="text-sm"
+                              >
+                                {isGeneratingTimestamps ? (
+                                  <>
+                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    Génération...
+                                  </>
+                                ) : (
+                                  <>
+                                    <RefreshCw className="h-3 w-3 mr-1" />
+                                    Générer
+                                  </>
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                          <textarea
+                            id="timestamps"
+                            value={editTimestamps}
+                            onChange={(e) => setEditTimestamps(e.target.value)}
+                            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Format: 00:00 - Introduction, 05:30 - Discussion principale, etc."
+                            rows={4}
+                          />
                         </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <CardTitle className="text-2xl">{episode.title}</CardTitle>
-                      
-                      {/* Description rétractable */}
-                      {episode.description && (
-                        <div className="mt-8">
-                          <CollapsibleField title="Description" defaultExpanded={false}>
-                            <div className="text-sm text-gray-600 whitespace-pre-line">
-                              {episode.description}
-                            </div>
-                          </CollapsibleField>
+                        <div>
+                          <Label htmlFor="videoUrl">URL Vidéo (optionnel)</Label>
+                          <Input
+                            id="videoUrl"
+                            value={editVideoUrl}
+                            onChange={(e) => setEditVideoUrl(e.target.value)}
+                            className="mt-1"
+                            placeholder="https://youtube.com/..."
+                          />
                         </div>
-                      )}
-                      
-                      {/* Timestamps rétractables */}
-                      {episode.timestamps && (
-                        <div className="mt-6">
-                          <CollapsibleField title="Timestamps" defaultExpanded={false}>
-                            <div className="text-sm text-gray-600 whitespace-pre-line">
-                              {episode.timestamps}
-                            </div>
-                          </CollapsibleField>
-                        </div>
-                      )}
-                      
-                      {/* Boutons de copie pour les plateformes */}
-                      {(episode.description || episode.timestamps) && (
-                        <div className="mt-6 pt-4 border-t">
+                        
+                        {/* Boutons de copie pour les plateformes */}
+                        <div className="pt-4 border-t">
                           <Label className="text-sm font-medium text-gray-700 mb-3 block">
                             Copier pour publication
                           </Label>
                           <div className="flex gap-3">
                             <Button
+                              type="button"
                               variant="outline"
                               onClick={handleCopyToYoutube}
                               className="flex-1"
@@ -648,6 +588,7 @@ export default function EpisodeDetailPage() {
                               Copier sur YouTube
                             </Button>
                             <Button
+                              type="button"
                               variant="outline"
                               onClick={handleCopyToSpotify}
                               className="flex-1"
@@ -656,6 +597,7 @@ export default function EpisodeDetailPage() {
                               Copier sur Spotify
                             </Button>
                             <Button
+                              type="button"
                               variant="outline"
                               onClick={handleCopyToBlog}
                               className="flex-1"
@@ -665,218 +607,279 @@ export default function EpisodeDetailPage() {
                             </Button>
                           </div>
                         </div>
-                      )}
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 ml-4">
-                  {isEditing ? (
-                    <>
-                      <Button onClick={handleSave} size="sm">
-                        <Save className="h-4 w-4 mr-1" />
-                        Sauvegarder
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          setIsEditing(false)
-                          setEditTitle(episode.title)
-                          setEditDescription(episode.description || '')
-                          setEditTimestamps(episode.timestamps || '')
-                          setEditVideoUrl(episode.video_url || '')
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </>
-                  ) : (
-                    <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
-                      <Edit className="h-4 w-4 mr-1" />
-                      Modifier
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
-                <EpisodeStatus status={episode.status} errorMessage={episode.error_message} />
-              </div>
-              
-              <div className="mb-4">
-                <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Modifier le statut
-                </Label>
-                <StatusDropdown
-                  currentStatus={episode.status}
-                  onStatusChange={handleStatusChange}
-                  isUpdating={isSaving}
-                />
-              </div>
-              
-              <EpisodeMetadata episode={episode} />
-            </CardContent>
-          </Card>
-
-          {/* Audio Player */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileAudio className="h-5 w-5" />
-                Lecteur Audio
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <audio 
-                ref={audioRef}
-                controls 
-                className="w-full"
-                src={episode.audio_file_url}
-                onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
-              >
-                Votre navigateur ne supporte pas l'élément audio.
-              </audio>
-            </CardContent>
-          </Card>
-
-          {/* Transcription Section */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Transcription
-                </CardTitle>
-                {!transcription && episode.status !== 'processing' && (
-                  <Button 
-                    onClick={handleTranscribe}
-                    disabled={isTranscribing}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    {isTranscribing ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Transcription en cours...
-                      </>
+                      </div>
                     ) : (
                       <>
-                        <Mic className="h-4 w-4 mr-2" />
-                        Générer la transcription
+                        <CardTitle className="text-2xl">{episode.title}</CardTitle>
+                        
+                        {/* Description rétractable */}
+                        {episode.description && (
+                          <div className="mt-8">
+                            <CollapsibleField title="Description" defaultExpanded={false}>
+                              <div className="text-sm text-gray-600 whitespace-pre-line">
+                                {episode.description}
+                              </div>
+                            </CollapsibleField>
+                          </div>
+                        )}
+                        
+                        {/* Timestamps rétractables */}
+                        {episode.timestamps && (
+                          <div className="mt-6">
+                            <CollapsibleField title="Timestamps" defaultExpanded={false}>
+                              <div className="text-sm text-gray-600 whitespace-pre-line">
+                                {episode.timestamps}
+                              </div>
+                            </CollapsibleField>
+                          </div>
+                        )}
+                        
+                        {/* Boutons de copie pour les plateformes */}
+                        {(episode.description || episode.timestamps) && (
+                          <div className="mt-6 pt-4 border-t">
+                            <Label className="text-sm font-medium text-gray-700 mb-3 block">
+                              Copier pour publication
+                            </Label>
+                            <div className="flex gap-3">
+                              <Button
+                                variant="outline"
+                                onClick={handleCopyToYoutube}
+                                className="flex-1"
+                              >
+                                <Youtube className="h-4 w-4 mr-2" />
+                                Copier sur YouTube
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={handleCopyToSpotify}
+                                className="flex-1"
+                              >
+                                <Music className="h-4 w-4 mr-2" />
+                                Copier sur Spotify
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={handleCopyToBlog}
+                                className="flex-1"
+                              >
+                                <FileTextIcon className="h-4 w-4 mr-2" />
+                                Copier pour Blog
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </>
                     )}
-                  </Button>
-                )}
-                {transcription && (
-                  <Button 
-                    variant="outline"
-                    onClick={handleTranscribe}
-                    disabled={isTranscribing}
-                  >
-                    {isTranscribing ? (
+                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                    {isEditing ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Régénérer en cours...
+                        <Button onClick={handleSave} size="sm">
+                          <Save className="h-4 w-4 mr-1" />
+                          Sauvegarder
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setIsEditing(false)
+                            setEditTitle(episode.title)
+                            setEditDescription(episode.description || '')
+                            setEditTimestamps(episode.timestamps || '')
+                            setEditVideoUrl(episode.video_url || '')
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </>
                     ) : (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Régénérer
-                      </>
+                      <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+                        <Edit className="h-4 w-4 mr-1" />
+                        Modifier
+                      </Button>
                     )}
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {episode.status === 'processing' && !transcription && (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-                  <p className="text-gray-600">Transcription en cours...</p>
+                  </div>
                 </div>
-              )}
-              
-              {transcription && transcription.processing_status === 'completed' && (
-                <>
-                  <TranscriptionDisplay
-                    key={transcription.updated_at || transcription.created_at}
-                    transcription={transcription}
-                    onTimestampClick={(timestamp) => {
-                      if (audioRef.current) {
-                        audioRef.current.currentTime = timestamp.start
-                        audioRef.current.play()
-                      }
-                    }}
-                    currentTime={currentTime}
-                    onTranscriptionUpdated={handleTranscriptionUpdated}
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <EpisodeStatus status={episode.status} errorMessage={episode.error_message} />
+                </div>
+                
+                <div className="mb-4">
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Modifier le statut
+                  </Label>
+                  <StatusDropdown
+                    currentStatus={episode.status}
+                    onStatusChange={handleStatusChange}
+                    isUpdating={isSaving}
                   />
-                  
-                  {/* Gestion des Speakers - Intégrée dans la section transcription */}
-                  {/* This block is now moved to the main card */}
-                </>
-              )}
-              
-              {transcription && transcription.processing_status === 'error' && (
-                <div className="text-center py-8">
-                  <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
-                  <p className="text-red-600">Erreur lors de la transcription</p>
                 </div>
-              )}
-              
-              {!transcription && episode.status !== 'processing' && (
-                <div className="text-center py-8 text-gray-500">
-                  <Mic className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p>Aucune transcription disponible</p>
-                  <p className="text-sm mt-2">Cliquez sur "Générer la transcription" pour commencer</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                
+                <EpisodeMetadata episode={episode} />
+              </CardContent>
+            </Card>
 
-          {/* Publication Réseaux Sociaux */}
-          <TweetGenerator 
-            episodeId={episode.id}
-            hasTranscription={!!transcription && transcription.processing_status === 'completed'}
-          />
-
-          {/* Tweets Planifiés */}
-          <ScheduledTweets episodeId={episode.id} />
-
-          {/* Additional Info */}
-          {episode.video_url && (
+            {/* Audio Player */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  🎥 Vidéo associée
+                  <FileAudio className="h-5 w-5" />
+                  Lecteur Audio
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <a 
-                  href={episode.video_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 underline"
+                <audio 
+                  ref={audioRef}
+                  controls 
+                  className="w-full"
+                  src={episode.audio_file_url}
+                  onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
                 >
-                  {episode.video_url}
-                </a>
+                  Votre navigateur ne supporte pas l'élément audio.
+                </audio>
               </CardContent>
             </Card>
-          )}
 
-          {/* Error Message */}
-          {episode.status === 'failed' && episode.error_message && (
-            <Card className="border-red-200">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 text-red-600 mb-2">
-                  <AlertCircle className="h-5 w-5" />
-                  <span className="font-medium">Erreur de traitement</span>
+            {/* Transcription Section */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Transcription
+                  </CardTitle>
+                  {!transcription && episode.status !== 'processing' && (
+                    <Button 
+                      onClick={handleTranscribe}
+                      disabled={isTranscribing}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {isTranscribing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Transcription en cours...
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="h-4 w-4 mr-2" />
+                          Générer la transcription
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  {transcription && (
+                    <Button 
+                      variant="outline"
+                      onClick={handleTranscribe}
+                      disabled={isTranscribing}
+                    >
+                      {isTranscribing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Régénérer en cours...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Régénérer
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
-                <p className="text-red-600">{episode.error_message}</p>
+              </CardHeader>
+              <CardContent>
+                {episode.status === 'processing' && !transcription && (
+                  <div className="text-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+                    <p className="text-gray-600">Transcription en cours...</p>
+                  </div>
+                )}
+                
+                {transcription && transcription.processing_status === 'completed' && (
+                  <>
+                    <TranscriptionDisplay
+                      key={transcription.updated_at || transcription.created_at}
+                      transcription={transcription}
+                      onTimestampClick={(timestamp) => {
+                        if (audioRef.current) {
+                          audioRef.current.currentTime = timestamp.start
+                          audioRef.current.play()
+                        }
+                      }}
+                      currentTime={currentTime}
+                      onTranscriptionUpdated={handleTranscriptionUpdated}
+                    />
+                    
+                    {/* Gestion des Speakers - Intégrée dans la section transcription */}
+                    {/* This block is now moved to the main card */}
+                  </>
+                )}
+                
+                {transcription && transcription.processing_status === 'error' && (
+                  <div className="text-center py-8">
+                    <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+                    <p className="text-red-600">Erreur lors de la transcription</p>
+                  </div>
+                )}
+                
+                {!transcription && episode.status !== 'processing' && (
+                  <div className="text-center py-8 text-gray-500">
+                    <Mic className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <p>Aucune transcription disponible</p>
+                    <p className="text-sm mt-2">Cliquez sur "Générer la transcription" pour commencer</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          )}
-        </div>
-      </main>
-    </div>
+
+            {/* Publication Réseaux Sociaux */}
+            <TweetGenerator 
+              episodeId={episode.id}
+              hasTranscription={!!transcription && transcription.processing_status === 'completed'}
+            />
+
+            {/* Tweets Planifiés */}
+            <ScheduledTweets episodeId={episode.id} />
+
+            {/* Additional Info */}
+            {episode.video_url && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    🎥 Vidéo associée
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <a 
+                    href={episode.video_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {episode.video_url}
+                  </a>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Error Message */}
+            {episode.status === 'failed' && episode.error_message && (
+              <Card className="border-red-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 text-red-600 mb-2">
+                    <AlertCircle className="h-5 w-5" />
+                    <span className="font-medium">Erreur de traitement</span>
+                  </div>
+                  <p className="text-red-600">{episode.error_message}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </main>
+      </div>
+    </ProtectedRoute>
   )
 }
