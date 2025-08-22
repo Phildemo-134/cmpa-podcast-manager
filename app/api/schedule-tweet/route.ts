@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '../../../types/database'
+import { convertLocalToUTC } from '../../../lib/utils'
 
 const supabase = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -115,14 +116,21 @@ export async function POST(request: NextRequest) {
       finalContent: content
     }
 
+    // Convertir la date et heure locales en UTC pour le stockage
+    const scheduledAtUTC = convertLocalToUTC(scheduledDate, scheduledTime)
+    
+    console.log('🕐 Conversion fuseau horaire:')
+    console.log('  - Date locale:', scheduledDate)
+    console.log('  - Heure locale:', scheduledTime)
+    console.log('  - UTC stocké:', scheduledAtUTC)
+    
     // Insérer le tweet planifié
     const { data: tweet, error: insertError } = await supabase
       .from('scheduled_tweets')
       .insert({
         user_id: userId,
         content: content,
-        scheduled_date: scheduledDate,
-        scheduled_time: scheduledTime,
+        scheduled_at: scheduledAtUTC,
         episode_id: episodeId || null,
         metadata: metadata,
         status: 'pending'
@@ -171,7 +179,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('scheduled_tweets')
       .select('*')
-      .order('scheduled_date', { ascending: true })
+      .order('scheduled_at', { ascending: true })
 
     try {
       // Vérifier si la colonne episode_id existe

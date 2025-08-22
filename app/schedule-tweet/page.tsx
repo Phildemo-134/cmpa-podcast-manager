@@ -7,7 +7,11 @@ import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
 import { Header } from '../../components/ui/header'
 import { useSupabaseAuth } from '../../hooks/use-supabase-auth'
-import { ScheduledTweet } from '../../types/database'
+import { convertUTCToLocal, formatDateForDisplay } from '../../lib/utils'
+import { Database } from '../../types/database'
+
+// Type pour les tweets planifiés basé sur la base de données
+type ScheduledTweet = Database['public']['Tables']['scheduled_tweets']['Row']
 
 export default function ScheduleTweetPage() {
   const { user } = useSupabaseAuth()
@@ -312,7 +316,7 @@ export default function ScheduleTweetPage() {
                       <p className="text-gray-900 mb-2">{tweet.content}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span>
-                          Publié le {new Date(`${tweet.scheduled_date}T${tweet.scheduled_time}`).toLocaleDateString('fr-FR')} à {tweet.scheduled_time}
+                          Publié le {formatDateForDisplay(tweet.scheduled_at)} à {convertUTCToLocal(tweet.scheduled_at).time}
                         </span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(tweet.status)}`}>
                           {getStatusText(tweet.status)}

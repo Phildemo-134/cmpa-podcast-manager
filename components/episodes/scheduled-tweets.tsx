@@ -3,21 +3,10 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Calendar, Clock, X, Check, AlertCircle, Database, Wrench } from 'lucide-react'
+import { Calendar, Clock, X, Check, AlertCircle, Wrench } from 'lucide-react'
+import { Database } from '../../types/database'
 
-interface ScheduledTweet {
-  id: string
-  content: string
-  scheduled_date: string
-  scheduled_time: string
-  status: 'pending' | 'published' | 'cancelled' | 'failed'
-  created_at: string
-  metadata?: {
-    original_content: string
-    hashtags: string[]
-    episode_id: string
-  }
-}
+type ScheduledTweet = Database['public']['Tables']['scheduled_tweets']['Row']
 
 interface ScheduledTweetsProps {
   episodeId: string
@@ -166,7 +155,7 @@ export function ScheduledTweets({ episodeId }: ScheduledTweetsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <Database className="h-12 w-12 mx-auto mb-4 text-yellow-500" />
+            <Wrench className="h-12 w-12 mx-auto mb-4 text-yellow-500" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Mise à jour de la base de données requise</h3>
             <p className="text-gray-600 mb-4">
               Pour utiliser la fonctionnalité de planification des tweets, la base de données doit être mise à jour.
@@ -232,11 +221,11 @@ export function ScheduledTweets({ episodeId }: ScheduledTweetsProps) {
                       <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {new Date(tweet.scheduled_date).toLocaleDateString('fr-FR')}
+                          {new Date(tweet.scheduled_at).toLocaleDateString('fr-FR')}
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {tweet.scheduled_time}
+                          {new Date(tweet.scheduled_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
                       
