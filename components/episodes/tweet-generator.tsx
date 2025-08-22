@@ -149,8 +149,8 @@ export function TweetGenerator({ episodeId, hasTranscription }: TweetGeneratorPr
         body: JSON.stringify({
           episodeId,
           content: tweet.content,
-          hashtags: tweet.hashtags,
-          scheduledAt: scheduledDateTime.toISOString()
+          scheduledDate: scheduleDate,
+          scheduledTime: scheduleTime
         }),
       })
 

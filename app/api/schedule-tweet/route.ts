@@ -9,18 +9,58 @@ const supabase = createClient<Database>(
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, hashtags, scheduledAt, episodeId } = await request.json()
+    const body = await request.json()
+    console.log('📝 Données reçues:', body)
+    
+    const { content, scheduledDate, scheduledTime, episodeId } = body
 
-    if (!content || !scheduledAt || !episodeId) {
+    // Validation des données d'entrée
+    if (!content || typeof content !== 'string') {
       return NextResponse.json(
-        { error: 'Contenu, date de planification et ID de l\'épisode sont requis' },
+        { error: 'Le contenu du tweet est requis et doit être une chaîne de caractères' },
         { status: 400 }
       )
     }
 
-    // Vérifier que la date est dans le futur
-    const scheduledDateTime = new Date(scheduledAt)
+    if (!scheduledDate || typeof scheduledDate !== 'string') {
+      return NextResponse.json(
+        { error: 'La date de planification est requise et doit être une chaîne' },
+        { status: 400 }
+      )
+    }
+
+    if (!scheduledTime || typeof scheduledTime !== 'string') {
+      return NextResponse.json(
+        { error: 'L\'heure de planification est requise et doit être une chaîne' },
+        { status: 400 }
+      )
+    }
+
+    // Validation de la longueur du contenu
+    if (content.length > 280) {
+      return NextResponse.json(
+        { error: 'Le contenu du tweet ne peut pas dépasser 280 caractères' },
+        { status: 400 }
+      )
+    }
+
+    // Construire la date complète et vérifier qu'elle est dans le futur
+    const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`)
     const now = new Date()
+    
+    console.log('📅 Validation de date:')
+    console.log('  - Date reçue:', scheduledDate)
+    console.log('  - Heure reçue:', scheduledTime)
+    console.log('  - DateTime construite:', scheduledDateTime.toISOString())
+    console.log('  - Maintenant:', now.toISOString())
+    console.log('  - Différence (ms):', scheduledDateTime.getTime() - now.getTime())
+    
+    if (isNaN(scheduledDateTime.getTime())) {
+      return NextResponse.json(
+        { error: 'Format de date/heure invalide' },
+        { status: 400 }
+      )
+    }
     
     if (scheduledDateTime <= now) {
       return NextResponse.json(
@@ -29,77 +69,85 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Récupérer l'utilisateur à partir de l'épisode
-    const { data: episode, error: episodeError } = await supabase
-      .from('episodes')
-      .select('user_id')
-      .eq('id', episodeId)
-      .single()
+    console.log('✅ Validation des données réussie')
 
-    if (episodeError || !episode) {
-      return NextResponse.json(
-        { error: 'Épisode non trouvé' },
-        { status: 404 }
-      )
-    }
+    // Récupérer l'utilisateur à partir de l'épisode si episodeId est fourni
+    let userId: string
+    if (episodeId) {
+      const { data: episode, error: episodeError } = await supabase
+        .from('episodes')
+        .select('user_id')
+        .eq('id', episodeId)
+        .single()
 
-    // Préparer le contenu du tweet avec hashtags
-    const tweetContent = hashtags && hashtags.length > 0 
-      ? `${content} ${hashtags.map((tag: string) => `#${tag}`).join(' ')}`
-      : content
-
-    // Préparer les données d'insertion
-    const insertData: any = {
-      content: tweetContent,
-      scheduled_date: scheduledDateTime.toISOString().split('T')[0],
-      scheduled_time: scheduledDateTime.toTimeString().split(' ')[0],
-      user_id: episode.user_id,
-      status: 'pending'
-    }
-
-    // Ajouter episode_id et metadata si les colonnes existent
-    try {
-      // Vérifier si la colonne episode_id existe
-      const { error: checkError } = await supabase
-        .from('scheduled_tweets')
-        .select('episode_id')
-        .limit(1)
-
-      if (!checkError) {
-        insertData.episode_id = episodeId
-        insertData.metadata = {
-          original_content: content,
-          hashtags: hashtags || [],
-          episode_id: episodeId
-        }
+      if (episodeError) {
+        console.error('❌ Erreur lors de la récupération de l\'épisode:', episodeError)
+        return NextResponse.json(
+          { error: 'Erreur lors de la récupération de l\'épisode' },
+          { status: 500 }
+        )
       }
-    } catch (columnError) {
-      console.log('Colonnes episode_id et metadata non disponibles, utilisation de la structure de base')
+
+      if (!episode) {
+        return NextResponse.json(
+          { error: 'Épisode non trouvé' },
+          { status: 404 }
+        )
+      }
+
+      userId = episode.user_id
+      console.log('✅ Épisode trouvé, user_id:', userId)
+    } else {
+      // Si pas d'episodeId, on doit récupérer l'userId depuis le body ou l'auth
+      // Pour l'instant, on va exiger episodeId ou userId dans le body
+      if (!body.userId) {
+        return NextResponse.json(
+          { error: 'userId ou episodeId est requis' },
+          { status: 400 }
+        )
+      }
+      userId = body.userId
     }
 
-    // Insérer le tweet planifié dans la base de données
-    const { data, error } = await supabase
+    // Préparer les métadonnées
+    const metadata = {
+      originalContent: content,
+      finalContent: content
+    }
+
+    // Insérer le tweet planifié
+    const { data: tweet, error: insertError } = await supabase
       .from('scheduled_tweets')
-      .insert(insertData)
+      .insert({
+        user_id: userId,
+        content: content,
+        scheduled_date: scheduledDate,
+        scheduled_time: scheduledTime,
+        episode_id: episodeId || null,
+        metadata: metadata,
+        status: 'pending'
+      })
       .select()
       .single()
 
-    if (error) {
-      console.error('Erreur Supabase:', error)
+    if (insertError) {
+      console.error('❌ Erreur lors de l\'insertion du tweet:', insertError)
       return NextResponse.json(
-        { error: 'Erreur lors de la sauvegarde du tweet' },
+        { error: 'Erreur lors de la planification du tweet' },
         { status: 500 }
       )
     }
 
+    console.log('✅ Tweet planifié avec succès:', tweet)
+
     return NextResponse.json({ 
       success: true, 
-      tweet: data,
-      scheduledFor: scheduledDateTime.toISOString()
+      tweet,
+      message: 'Tweet planifié avec succès'
     })
 
   } catch (error) {
-    console.error('Erreur serveur:', error)
+    console.error('❌ Erreur lors de la planification du tweet:', error)
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

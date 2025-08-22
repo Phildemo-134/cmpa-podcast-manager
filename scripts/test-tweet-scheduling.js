@@ -54,13 +54,14 @@ async function testTweetScheduling() {
     
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
-    const scheduledAt = tomorrow.toISOString()
+    const scheduledDate = tomorrow.toISOString().split('T')[0]
+    const scheduledTime = tomorrow.toTimeString().slice(0, 5)
     
     const testTweet = {
       episodeId: episode.id,
       content: "Test de planification de tweet pour l'épisode",
-      hashtags: ["test", "podcast"],
-      scheduledAt: scheduledAt
+      scheduledDate: scheduledDate,
+      scheduledTime: scheduledTime
     }
     
     console.log('📝 Tweet de test:', testTweet)

@@ -40,6 +40,13 @@ export default function ScheduleTweetPage() {
         return
       }
 
+      console.log('tweetContent', {
+        content: tweetContent,
+        scheduledDate,
+        scheduledTime,
+        userId: user.id
+      })
+
       const response = await fetch('/api/schedule-tweet', {
         method: 'POST',
         headers: {
