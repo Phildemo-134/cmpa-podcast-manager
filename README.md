@@ -2,7 +2,7 @@
 
 Application web de gestion et traitement automatisé de podcasts pour la création de contenu multi-plateforme.
 
-## 📋 Cahier des Charges
+## 📋 Cahier des Charges De Notre Projet
 
 ### Vue d'ensemble
 Application permettant aux créateurs de podcasts de transformer leurs enregistrements audio en contenu optimisé pour différentes plateformes (blog, réseaux sociaux, descriptions pour Spotify/YouTube) grâce à l'intelligence artificielle.
