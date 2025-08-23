@@ -155,7 +155,7 @@ Transcription {
 - Support prioritaire
 - Analytics détaillés
 
-### 📱 Interface Utilisateur
+### Interface Utilisateur
 
 #### Design System
 - **Style** : Professionnel, moderne, épuré
