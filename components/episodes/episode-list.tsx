@@ -12,12 +12,13 @@ import {
   Calendar,
   CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  Upload
 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../ui/card'
 import { createClient } from '@supabase/supabase-js'
-import { Episode } from '../../types/database'
+import { Episode } from '../../types/index'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,9 +27,13 @@ const supabase = createClient(
 
 const statusConfig = {
   draft: { label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-50', icon: Clock },
+  uploading: { label: 'Upload en cours', color: 'text-blue-600', bg: 'bg-blue-50', icon: Upload },
+  transcribing: { label: 'Transcription', color: 'text-yellow-600', bg: 'bg-yellow-50', icon: FileAudio },
   processing: { label: 'Traitement IA', color: 'text-purple-600', bg: 'bg-purple-50', icon: Loader2 },
+  completed: { label: 'Terminé', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
   published: { label: 'Publié', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
-  failed: { label: 'Échec', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
+  failed: { label: 'Échec', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle },
+  error: { label: 'Erreur', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
 }
 
 export function EpisodeList() {
@@ -101,6 +106,7 @@ export function EpisodeList() {
   }
 
   const getStatusConfig = (status: Episode['status']) => {
+    if (!status) return statusConfig.failed
     return statusConfig[status] || statusConfig.failed
   }
 
@@ -185,7 +191,7 @@ export function EpisodeList() {
                     </div> */}
                     <div className="flex items-center gap-1 text-sm text-gray-500">
                     <Calendar className="h-4 w-4" />
-                    {formatDate(episode.created_at)}
+                    {episode.created_at ? formatDate(episode.created_at) : '--'}
                   </div>
                   </div>
               </CardHeader>

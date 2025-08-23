@@ -33,7 +33,7 @@ import { EpisodeMetadata } from '../../../components/episodes/episode-metadata'
 import { EpisodeStatus } from '../../../components/episodes/episode-status'
 import { TranscriptionDisplay } from '../../../components/episodes/transcription-display'
 import { createClient } from '@supabase/supabase-js'
-import { Episode, Transcription } from '../../../types/database'
+import { Episode, Transcription } from '../../../types/index'
 import { SpeakerEditor } from '../../../components/episodes/speaker-editor'
 import { StatusDropdown } from '../../../components/episodes/status-dropdown'
 import { TweetGenerator } from '../../../components/episodes/tweet-generator'
@@ -342,7 +342,7 @@ export default function EpisodeDetailPage() {
     }
   }
 
-  const handleStatusChange = async (newStatus: 'draft' | 'processing' | 'published' | 'failed') => {
+  const handleStatusChange = async (newStatus: 'draft' | 'processing' | 'published' | 'failed' | 'uploading' | 'transcribing' | 'completed' | 'error') => {
     if (!episode) return
 
     try {
@@ -720,8 +720,9 @@ export default function EpisodeDetailPage() {
                           <CardTitle className="text-2xl">{episode.title}</CardTitle>
                           
                           {/* Statut discret à côté du titre */}
-                          {(() => {
-                            const status = statusConfig[episode.status]
+                          {episode.status && (() => {
+                            const status = statusConfig[episode.status as keyof typeof statusConfig]
+                            if (!status) return null
                             const StatusIcon = status.icon
                             return (
                               <div className={`px-2 py-1 rounded-full text-xs font-medium ${status.bg} ${status.color}`}>
@@ -829,7 +830,7 @@ export default function EpisodeDetailPage() {
                     Modifier le statut
                   </Label>
                   <StatusDropdown
-                    currentStatus={episode.status}
+                    currentStatus={episode.status || 'draft'}
                     onStatusChange={handleStatusChange}
                     isUpdating={isSaving}
                   />

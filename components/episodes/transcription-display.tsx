@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
 import { FileText, Copy, Check, Download, Eye, EyeOff, User, Edit2, Save, X, Sparkles } from 'lucide-react'
-import { Transcription } from '../../types/database'
+import { Transcription } from '../../types/index'
 import { SpeakerEditor, SpeakerEditorHandle } from './speaker-editor'
 import { createClient } from '@supabase/supabase-js'
 

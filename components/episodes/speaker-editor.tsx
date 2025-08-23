@@ -3,7 +3,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Edit2, Save, X, Users, User } from 'lucide-react'
-import { Transcription } from '../../types/database'
+import { Transcription } from '../../types/index'
 
 interface SpeakerEditorProps {
   transcription: Transcription

@@ -72,10 +72,15 @@ export async function updateProfile(updates: {
 }) {
   const supabase = await createServerSupabaseClient()
   try {
+    const session = await getSession()
+    if (!session?.user?.id) {
+      throw new Error('User not authenticated')
+    }
+
     const { data, error } = await supabase
       .from('users')
       .update(updates)
-      .eq('id', (await getSession())?.user?.id)
+      .eq('id', session.user.id)
       .select()
       .single()
 

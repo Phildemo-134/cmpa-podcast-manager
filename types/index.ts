@@ -1,5 +1,13 @@
 // Types de base pour l'application Podcast Manager
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
 export interface User {
   id: string;
   email: string;
@@ -15,22 +23,36 @@ export interface Episode {
   user_id: string;
   title: string;
   audio_file_url: string;
-  duration: number;
-  status: 'uploading' | 'transcribing' | 'processing' | 'completed' | 'error';
-  created_at: Date;
-  updated_at: Date;
+  description?: string | null;
+  duration: number | null;
+  status: 'uploading' | 'transcribing' | 'processing' | 'completed' | 'error' | 'published' | 'failed' | 'draft' | null;
+  created_at: string | null;
+  updated_at: string | null;
+  error_message?: string | null;
+  file_size?: number | null;
+  highlights_timestamps?: string | null;
+  s3_bucket?: string | null;
+  s3_key?: string | null;
+  timestamps?: string | null;
+  video_url?: string | null;
 }
 
 export interface Transcription {
   id: string;
   episode_id: string;
   raw_text: string;
-  cleaned_text: string;
-  timestamps: Timestamp[];
-  blog_description: string;
-  spotify_description: string;
-  youtube_description: string;
-  social_drafts: SocialDraft[];
+  cleaned_text?: string | null;
+  formatted_text?: string | null;
+  optimized_text?: string | null;
+  processing_status?: string | null;
+  timestamps: Json | null;
+  blog_description?: string | null;
+  spotify_description?: string | null;
+  youtube_description?: string | null;
+  social_drafts?: Json | null;
+  type?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 export interface Timestamp {

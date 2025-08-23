@@ -1,12 +1,12 @@
 import { Clock, FileAudio, Calendar, User, Tag, Link } from 'lucide-react'
-import { Episode } from '../../types/database'
+import { Episode } from '../../types/index'
 
 interface EpisodeMetadataProps {
   episode: Episode
 }
 
 export function EpisodeMetadata({ episode }: EpisodeMetadataProps) {
-  const formatDuration = (seconds: number | null) => {
+  const formatDuration = (seconds: number | null | undefined) => {
     if (!seconds || seconds === 0) return '--:--'
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
@@ -18,13 +18,14 @@ export function EpisodeMetadata({ episode }: EpisodeMetadataProps) {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
-  const formatFileSize = (bytes: number | null) => {
+  const formatFileSize = (bytes: number | null | undefined) => {
     if (!bytes) return '--'
     const mb = bytes / 1024 / 1024
     return `${mb.toFixed(1)} MB`
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '--'
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
