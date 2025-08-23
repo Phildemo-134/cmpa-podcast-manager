@@ -74,8 +74,7 @@ async function applyMigration() {
     
     const testTweet = {
       content: 'Tweet de test pour vérifier la migration',
-      scheduled_date: new Date().toISOString().split('T')[0],
-      scheduled_time: new Date().toTimeString().split(' ')[0],
+                      scheduled_at: new Date().toISOString(),
       user_id: '00000000-0000-0000-0000-000000000000', // UUID de test
       status: 'pending'
     }

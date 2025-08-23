@@ -114,7 +114,7 @@ async function testTweetRetrieval() {
     
     tweets.forEach((tweet, index) => {
       console.log(`   ${index + 1}. [${tweet.status}] "${tweet.content}"`)
-      console.log(`      📅 ${tweet.scheduled_date} à ${tweet.scheduled_time}`)
+      console.log(`      �� ${tweet.scheduled_at}`)
     })
     
     return tweets

@@ -112,7 +112,7 @@ async function testScheduleTweetAPI() {
     } else {
       console.log('✅ Tweets trouvés:', tweets.length)
       tweets.forEach(tweet => {
-        console.log(`  - ${tweet.content} (${tweet.scheduled_date} ${tweet.scheduled_time})`)
+        console.log(`  - ${tweet.content} (${new Date(tweet.scheduled_at).toLocaleString('fr-FR')})`)
       })
     }
 

@@ -121,8 +121,7 @@ async function checkDatabaseStructure() {
     const testData = {
       user_id: users[0].id,
       content: 'Test de tweet',
-      scheduled_date: '2024-12-31',
-      scheduled_time: '12:00:00',
+              scheduled_at: new Date('2024-12-31T12:00:00Z').toISOString(),
       status: 'pending',
       episode_id: episodes[0].id,
       metadata: { test: true }

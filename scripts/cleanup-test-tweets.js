@@ -69,7 +69,7 @@ async function showCurrentStatus() {
   try {
     const { data: tweets, error } = await supabase
       .from('scheduled_tweets')
-      .select('id, content, status, scheduled_date, scheduled_time')
+      .select('id, content, status, scheduled_at')
       .order('created_at', { ascending: false })
       .limit(10)
     
@@ -90,7 +90,7 @@ async function showCurrentStatus() {
       const statusIcon = tweet.status === 'published' ? '✅' : 
                         tweet.status === 'pending' ? '⏳' : '❌'
       console.log(`${statusIcon} [${tweet.status.toUpperCase()}] ${tweet.content}`)
-      console.log(`   📅 ${tweet.scheduled_date} à ${tweet.scheduled_time}`)
+      console.log(`   📅 ${new Date(tweet.scheduled_at).toLocaleString('fr-FR')}`)
       console.log('')
     })
     

@@ -19,14 +19,13 @@ const supabase = createClient(
 /**
  * Crée un tweet de test planifié
  */
-async function createTestTweet(content, scheduledDate, scheduledTime, userId) {
+async function createTestTweet(content, scheduledAt, userId) {
   try {
     const { data, error } = await supabase
       .from('scheduled_tweets')
       .insert({
         content,
-        scheduled_date: scheduledDate,
-        scheduled_time: scheduledTime,
+        scheduled_at: scheduledAt,
         user_id: userId,
         status: 'pending'
       })
@@ -39,7 +38,7 @@ async function createTestTweet(content, scheduledDate, scheduledTime, userId) {
     }
     
     console.log(`✅ Tweet créé: "${content}"`)
-    console.log(`   Planifié pour: ${scheduledDate} à ${scheduledTime}`)
+    console.log(`   Planifié pour: ${new Date(scheduledAt).toLocaleString('fr-FR')}`)
     console.log(`   ID: ${data.id}`)
     return data
     
@@ -83,24 +82,21 @@ function generateTestDates() {
   // Tweet dans 1 minute
   const in1Min = new Date(now.getTime() + 1 * 60 * 1000)
   dates.push({
-    date: in1Min.toISOString().split('T')[0],
-    time: in1Min.toTimeString().slice(0, 5),
+    scheduledAt: in1Min.toISOString(),
     label: 'dans 1 minute'
   })
   
   // Tweet dans 2 minutes
   const in2Min = new Date(now.getTime() + 2 * 60 * 1000)
   dates.push({
-    date: in2Min.toISOString().split('T')[0],
-    time: in2Min.toTimeString().slice(0, 5),
+    scheduledAt: in2Min.toISOString(),
     label: 'dans 2 minutes'
   })
   
   // Tweet dans 5 minutes
   const in5Min = new Date(now.getTime() + 5 * 60 * 1000)
   dates.push({
-    date: in5Min.toISOString().split('T')[0],
-    time: in5Min.toTimeString().slice(0, 5),
+    scheduledAt: in5Min.toISOString(),
     label: 'dans 5 minutes'
   })
   
@@ -158,8 +154,7 @@ async function main() {
       
       const result = await createTestTweet(
         tweet,
-        dateInfo.date,
-        dateInfo.time,
+        dateInfo.scheduledAt,
         user.id
       )
       

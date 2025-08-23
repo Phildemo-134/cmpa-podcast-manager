@@ -72,20 +72,16 @@ async function publishTweetToTwitter(tweet) {
  */
 async function getTweetsToPublish() {
   const now = new Date()
-  const currentDate = now.toISOString().split('T')[0]
-  const currentTime = now.toTimeString().slice(0, 5)
   
-  console.log(`🔍 Recherche des tweets à publier le ${currentDate} à ${currentTime}`)
+  console.log(`🔍 Recherche des tweets à publier maintenant (${now.toISOString()})`)
   
   try {
     const { data: tweets, error } = await supabase
       .from('scheduled_tweets')
       .select('*')
       .eq('status', 'pending')
-      .lte('scheduled_date', currentDate)
-      .lte('scheduled_time', currentTime)
-      .order('scheduled_date', { ascending: true })
-      .order('scheduled_time', { ascending: true })
+      .lte('scheduled_at', now.toISOString())
+      .order('scheduled_at', { ascending: true })
     
     if (error) {
       console.error('❌ Erreur lors de la récupération des tweets:', error)
@@ -108,7 +104,7 @@ async function publishTweet(tweet) {
   try {
     console.log(`\n🚀 Publication du tweet ID: ${tweet.id}`)
     console.log(`📝 Contenu: ${tweet.content}`)
-    console.log(`📅 Planifié pour: ${tweet.scheduled_date} à ${tweet.scheduled_time}`)
+    console.log(`📅 Planifié pour: ${new Date(tweet.scheduled_at).toLocaleString('fr-FR')}`)
     
     // Publier sur Twitter
     const result = await publishTweetToTwitter(tweet)

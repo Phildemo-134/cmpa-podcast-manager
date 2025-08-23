@@ -104,8 +104,8 @@ async function testTweetScheduling() {
       tweets.forEach((tweet, index) => {
         console.log(`\n📱 Tweet ${index + 1}:`)
         console.log(`   Contenu: ${tweet.content}`)
-        console.log(`   Date: ${tweet.scheduled_date}`)
-        console.log(`   Heure: ${tweet.scheduled_time}`)
+        console.log(`   Date: ${new Date(tweet.scheduled_at).toLocaleString('fr-FR')}`)
+        console.log(`   Heure: ${new Date(tweet.scheduled_at).toLocaleTimeString('fr-FR')}`)
         console.log(`   Statut: ${tweet.status}`)
       })
     }

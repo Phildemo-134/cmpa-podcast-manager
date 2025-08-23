@@ -15,6 +15,7 @@
     "test:s3": "npx tsx lib/test-s3.ts",
     "test:deepgram": "npx tsx lib/test-deepgram.ts",
     "test:speakers": "npx tsx lib/test-speaker-editing.ts",
+    "test:migration": "node scripts/test-migration-complete.js",
 
     "s3:setup": "./scripts/setup-s3.sh",
     "s3:test": "npx tsx lib/test-s3.ts",
@@ -27,7 +28,9 @@
     "create:test-tweets": "node scripts/create-test-tweets.js",
     "scheduler": "node scripts/tweet-scheduler.js",
     "scheduler:watch": "node scripts/tweet-scheduler.js --watch",
-    "cleanup:test-tweets": "node scripts/cleanup-test-tweets.js"
+    "cleanup:test-tweets": "node scripts/cleanup-test-tweets.js",
+    "cron:run": "node scripts/run-cron-job.js",
+    "generate:key": "node scripts/generate-cron-key.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.59.0",
