@@ -1,6 +1,7 @@
 import { EpisodeList } from '../../components/episodes/episode-list'
 import { Header } from '../../components/ui/header'
 import { ProtectedRoute } from '../../components/auth/protected-route'
+import { SubscriptionCTA } from '../../components/subscription'
 
 export default function DashboardPage() {
   return (
@@ -10,7 +11,10 @@ export default function DashboardPage() {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <EpisodeList />
+          <SubscriptionCTA />
+          <div className="mt-8">
+            <EpisodeList />
+          </div>
         </main>
       </div>
     </ProtectedRoute>

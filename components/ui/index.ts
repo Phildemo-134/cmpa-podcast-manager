@@ -5,4 +5,6 @@ export { Label } from "./label";
 export { Button as ButtonSimple } from "./button-simple";
 export { CollapsibleField } from "./collapsible-field";
 export { Header } from "./header";
+export { MobileNav } from "./mobile-nav";
+export { Breadcrumb } from "./breadcrumb";
 export { BackButton } from "./back-button";

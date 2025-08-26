@@ -2,6 +2,7 @@
 
 import { AudioUpload } from '../../components/upload/audio-upload'
 import { ProtectedRoute } from '../../components/auth/protected-route'
+import { PremiumGuard } from '../../components/subscription'
 import { Button } from '../../components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -42,7 +43,9 @@ export default function UploadPage() {
             </p>
           </div>
           
-          <AudioUpload />
+          <PremiumGuard>
+            <AudioUpload />
+          </PremiumGuard>
         </main>
       </div>
     </ProtectedRoute>

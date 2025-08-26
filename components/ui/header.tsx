@@ -1,7 +1,9 @@
 import { SignOutButton } from '../auth/sign-out-button'
+import { SubscriptionBadge } from '../subscription'
+import { MobileNav } from './mobile-nav'
 
 interface HeaderProps {
-  currentPage: 'dashboard' | 'upload' | 'settings' | 'episode' | 'schedule-tweet'
+  currentPage: 'dashboard' | 'upload' | 'settings' | 'episode' | 'schedule-tweet' | 'subscription'
 }
 
 export function Header({ currentPage }: HeaderProps) {
@@ -13,7 +15,7 @@ export function Header({ currentPage }: HeaderProps) {
             <h1 className="text-xl font-semibold text-gray-900">
               Podcast Manager
             </h1>
-            <nav className="flex space-x-4">
+            <nav className="hidden md:flex space-x-4">
               <a
                 href="/dashboard"
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
@@ -44,11 +46,23 @@ export function Header({ currentPage }: HeaderProps) {
               >
                 Réglages
               </a>
+              <a
+                href="/subscription"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  currentPage === 'subscription'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Plans & Abonnement
+              </a>
             </nav>
           </div>
           
           <div className="flex items-center gap-4">
+            <SubscriptionBadge />
             <SignOutButton />
+            <MobileNav currentPage={currentPage} />
           </div>
         </div>
       </div>

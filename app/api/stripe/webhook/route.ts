@@ -1,0 +1,170 @@
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
+import { headers } from 'next/headers';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+});
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function POST(request: NextRequest) {
+  const body = await request.text();
+  const headersList = await headers();
+  const signature = headersList.get('stripe-signature');
+
+  if (!signature) {
+    return NextResponse.json(
+      { error: 'Missing stripe signature' },
+      { status: 400 }
+    );
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err);
+    return NextResponse.json(
+      { error: 'Invalid signature' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    switch (event.type) {
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionChange(subscription);
+        break;
+
+      case 'customer.subscription.deleted':
+        const deletedSubscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionDeletion(deletedSubscription);
+        break;
+
+      case 'invoice.payment_succeeded':
+        const invoice = event.data.object as Stripe.Invoice;
+        await handlePaymentSucceeded(invoice);
+        break;
+
+      case 'invoice.payment_failed':
+        const failedInvoice = event.data.object as Stripe.Invoice;
+        await handlePaymentFailed(failedInvoice);
+        break;
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error('Error processing webhook:', error);
+    return NextResponse.json(
+      { error: 'Webhook processing failed' },
+      { status: 500 }
+    );
+  }
+}
+
+async function handleSubscriptionChange(subscription: Stripe.Subscription) {
+  const userId = subscription.metadata.supabase_user_id;
+  if (!userId) return;
+
+  // Récupérer la subscription complète depuis Stripe pour avoir toutes les propriétés
+  let fullSubscription: Stripe.Subscription;
+  try {
+    fullSubscription = await stripe.subscriptions.retrieve(subscription.id);
+  } catch (error) {
+    console.error('Error retrieving full subscription:', error);
+    return;
+  }
+
+  const isTrial = fullSubscription.status === 'trialing';
+  const status = isTrial ? 'active' : fullSubscription.status;
+  const tier = 'pro';
+
+  // Validation des propriétés requises
+  if (!fullSubscription.current_period_start || !fullSubscription.current_period_end) {
+    console.error('Missing required subscription properties:', {
+      id: fullSubscription.id,
+      current_period_start: fullSubscription.current_period_start,
+      current_period_end: fullSubscription.current_period_end
+    });
+    return;
+  }
+
+  // Mettre à jour ou créer l'abonnement dans Supabase
+  const { error } = await supabase
+    .from('subscriptions')
+    .upsert({
+      user_id: userId,
+      stripe_subscription_id: fullSubscription.id,
+      stripe_price_id: fullSubscription.items.data[0].price.id,
+      status: status,
+      current_period_start: new Date(fullSubscription.current_period_start * 1000).toISOString(),
+      current_period_end: new Date(fullSubscription.current_period_end * 1000).toISOString(),
+      trial_start: fullSubscription.trial_start 
+        ? new Date(fullSubscription.trial_start * 1000).toISOString() 
+        : null,
+      trial_end: fullSubscription.trial_end 
+        ? new Date(fullSubscription.trial_end * 1000).toISOString() 
+        : null,
+    });
+
+  if (error) {
+    console.error('Error updating subscription:', error);
+    return;
+  }
+
+  // Mettre à jour le statut de l'utilisateur
+  await supabase
+    .from('users')
+    .update({
+      subscription_status: status,
+      subscription_tier: tier,
+    })
+    .eq('id', userId);
+}
+
+async function handleSubscriptionDeletion(subscription: Stripe.Subscription) {
+  const userId = subscription.metadata.supabase_user_id;
+  if (!userId) return;
+
+  // Mettre à jour le statut de l'utilisateur
+  await supabase
+    .from('users')
+    .update({
+      subscription_status: 'canceled',
+      subscription_tier: 'free',
+    })
+    .eq('id', userId);
+}
+
+async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
+  if (invoice.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(
+      invoice.subscription as string
+    );
+    await handleSubscriptionChange(subscription);
+  }
+}
+
+async function handlePaymentFailed(invoice: Stripe.Invoice) {
+  if (invoice.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(
+      invoice.subscription as string
+    );
+    await handleSubscriptionChange(subscription);
+  }
+}
