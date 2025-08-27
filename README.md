@@ -217,7 +217,8 @@ Transcription {
   - [ ] Préparer et effectuer le déploiement en production
   - [ ] Intégrer Stripe pour la gestion des paiements
   - [ ] Implémenter la gestion des abonnements
-
+  - [ ] Tester bons de réductions
+  
 #### Phase 6 : Post-lancement et amélioration continue
   - [ ] Collecter et analyser les retours des premiers utilisateurs
   - [ ] Corriger les bugs identifiés et implémenter les améliorations
