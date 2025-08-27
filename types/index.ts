@@ -13,7 +13,7 @@ export interface User {
   email: string;
   name: string;
   subscription_tier: 'free' | 'pro' | 'enterprise';
-  subscription_status: 'active' | 'inactive' | 'cancelled';
+  subscription_status: 'free' | 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'incomplete' | 'incomplete_expired';
   created_at: Date;
   updated_at: Date;
 }

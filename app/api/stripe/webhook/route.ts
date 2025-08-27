@@ -115,7 +115,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
 
   switch (fullSubscription.status) {
     case 'trialing':
-      status = 'trialing';
+      status = 'trialing'; // Utiliser directement le statut Stripe
       tier = 'pro';
       break;
     case 'active':
@@ -123,27 +123,27 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
       tier = 'pro';
       break;
     case 'past_due':
-      status = 'past_due';
+      status = 'past_due'; // Utiliser directement le statut Stripe
       tier = 'pro';
       break;
     case 'canceled':
-      status = 'canceled';
+      status = 'canceled'; // Utiliser directement le statut Stripe
       tier = 'free';
       break;
     case 'unpaid':
-      status = 'unpaid';
+      status = 'unpaid'; // Utiliser directement le statut Stripe
       tier = 'free';
       break;
     case 'incomplete':
-      status = 'incomplete';
+      status = 'incomplete'; // Utiliser directement le statut Stripe
       tier = 'free';
       break;
     case 'incomplete_expired':
-      status = 'incomplete_expired';
+      status = 'incomplete_expired'; // Utiliser directement le statut Stripe
       tier = 'free';
       break;
     default:
-      status = fullSubscription.status;
+      status = 'inactive'; // Valeur par défaut sûre
       tier = 'free';
   }
 
@@ -211,7 +211,7 @@ async function handleSubscriptionDeletion(subscription: Stripe.Subscription) {
   const { error: userError } = await supabase
     .from('users')
     .update({
-      subscription_status: 'canceled',
+      subscription_status: 'canceled', // Utiliser 'canceled' pour la cohérence avec Stripe
       subscription_tier: 'free',
     })
     .eq('id', userId);
@@ -224,7 +224,7 @@ async function handleSubscriptionDeletion(subscription: Stripe.Subscription) {
   const { error: subError } = await supabase
     .from('subscriptions')
     .update({
-      status: 'canceled',
+      status: 'canceled', // Garder 'canceled' pour Stripe
     })
     .eq('user_id', userId)
     .eq('stripe_subscription_id', subscription.id);
