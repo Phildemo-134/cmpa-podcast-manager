@@ -53,10 +53,11 @@ export const metadata: Metadata = {
     siteName: "Podcast Manager",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/podcast-manager-meta.png",
         width: 1200,
         height: 630,
-        alt: "Podcast Manager",
+        alt: "Podcast Manager - Plateforme de gestion automatisé de podcasts et génération de contenu Marketing",
+        type: "image/png",
       },
     ],
   },
@@ -64,7 +65,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Podcast Manager - Gestion et traitement automatisé de podcasts",
     description: "Transformez vos podcasts en contenu multi-plateforme avec l'intelligence artificielle.",
-    images: ["/og-image.jpg"],
+    images: ["/podcast-manager-meta.png"],
+    creator: "@podcastmanager",
+    site: "@podcastmanager",
   },
   robots: {
     index: true,
@@ -80,6 +83,9 @@ export const metadata: Metadata = {
   verification: {
     google: "your-google-verification-code",
   },
+  other: {
+    "msapplication-config": "/browserconfig.xml",
+  },
 };
 
 export default function RootLayout({
@@ -90,12 +96,31 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
+        {/* Favicon standard */}
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        
+        {/* Favicons PNG pour différents navigateurs */}
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        
+        {/* Apple Touch Icon */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        
+        {/* Android Chrome Icons */}
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+        
+        {/* Web App Manifest */}
         <link rel="manifest" href="/site.webmanifest" />
+        
+        {/* Theme Colors */}
         <meta name="theme-color" content="#0ea5e9" />
+        <meta name="msapplication-TileColor" content="#0ea5e9" />
+        <meta name="msapplication-TileImage" content="/android-chrome-192x192.png" />
+        
+        {/* Preconnect pour améliorer les performances */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased bg-background text-foreground min-h-screen">
         <div className="relative flex min-h-screen flex-col">
