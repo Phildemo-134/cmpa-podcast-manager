@@ -157,65 +157,31 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Vérifier d'abord si l'abonnement existe déjà
-  const { data: existingSubscription, error: selectError } = await supabase
+  // Utiliser UPSERT pour éviter les race conditions
+  console.log(`Upserting subscription for user ${userId}`);
+  const { error: upsertError } = await supabase
     .from('subscriptions')
-    .select('id')
-    .eq('stripe_subscription_id', fullSubscription.id)
-    .single();
+    .upsert({
+      user_id: userId,
+      stripe_subscription_id: fullSubscription.id,
+      stripe_price_id: fullSubscription.items.data[0].price.id,
+      status: status,
+      current_period_start: new Date(fullSubscription.current_period_start * 1000).toISOString(),
+      current_period_end: new Date(fullSubscription.current_period_end * 1000).toISOString(),
+      trial_start: fullSubscription.trial_start 
+        ? new Date(fullSubscription.trial_start * 1000).toISOString() 
+        : null,
+      trial_end: fullSubscription.trial_end 
+        ? new Date(fullSubscription.trial_end * 1000).toISOString() 
+        : null,
+      updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'stripe_subscription_id',
+      ignoreDuplicates: false
+    });
 
-  if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = no rows returned
-    console.error('Error checking existing subscription:', selectError);
-    return;
-  }
-
-  let dbError;
-  
-  if (existingSubscription) {
-    // Mettre à jour l'abonnement existant
-    console.log(`Updating existing subscription ${existingSubscription.id} for user ${userId}`);
-    const { error } = await supabase
-      .from('subscriptions')
-      .update({
-        status: status,
-        current_period_start: new Date(fullSubscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(fullSubscription.current_period_end * 1000).toISOString(),
-        trial_start: fullSubscription.trial_start 
-          ? new Date(fullSubscription.trial_start * 1000).toISOString() 
-          : null,
-        trial_end: fullSubscription.trial_end 
-          ? new Date(fullSubscription.trial_end * 1000).toISOString() 
-          : null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', existingSubscription.id);
-    
-    dbError = error;
-  } else {
-    // Créer un nouvel abonnement
-    console.log(`Creating new subscription for user ${userId}`);
-    const { error } = await supabase
-      .from('subscriptions')
-      .insert({
-        user_id: userId,
-        stripe_subscription_id: fullSubscription.id,
-        stripe_price_id: fullSubscription.items.data[0].price.id,
-        status: status,
-        current_period_start: new Date(fullSubscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(fullSubscription.current_period_end * 1000).toISOString(),
-        trial_start: fullSubscription.trial_start 
-          ? new Date(fullSubscription.trial_start * 1000).toISOString() 
-          : null,
-        trial_end: fullSubscription.trial_end 
-          ? new Date(fullSubscription.trial_end * 1000).toISOString() 
-          : null,
-      });
-    
-    dbError = error;
-  }
-
-  if (dbError) {
-    console.error('Error updating/creating subscription:', dbError);
+  if (upsertError) {
+    console.error('Error upserting subscription:', upsertError);
     return;
   }
 
