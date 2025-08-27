@@ -98,6 +98,8 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
   const userId = subscription.metadata.supabase_user_id;
   if (!userId) return;
 
+  console.log(`Handling subscription change for user ${userId}, subscription ${subscription.id}`);
+
   // Récupérer la subscription complète depuis Stripe pour avoir toutes les propriétés
   let fullSubscription: Stripe.Subscription;
   try {
@@ -155,37 +157,82 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Mettre à jour ou créer l'abonnement dans Supabase
-  const { error } = await supabase
+  // Vérifier d'abord si l'abonnement existe déjà
+  const { data: existingSubscription, error: selectError } = await supabase
     .from('subscriptions')
-    .upsert({
-      user_id: userId,
-      stripe_subscription_id: fullSubscription.id,
-      stripe_price_id: fullSubscription.items.data[0].price.id,
-      status: status,
-      current_period_start: new Date(fullSubscription.current_period_start * 1000).toISOString(),
-      current_period_end: new Date(fullSubscription.current_period_end * 1000).toISOString(),
-      trial_start: fullSubscription.trial_start 
-        ? new Date(fullSubscription.trial_start * 1000).toISOString() 
-        : null,
-      trial_end: fullSubscription.trial_end 
-        ? new Date(fullSubscription.trial_end * 1000).toISOString() 
-        : null,
-    });
+    .select('id')
+    .eq('stripe_subscription_id', fullSubscription.id)
+    .single();
 
-  if (error) {
-    console.error('Error updating subscription:', error);
+  if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = no rows returned
+    console.error('Error checking existing subscription:', selectError);
+    return;
+  }
+
+  let dbError;
+  
+  if (existingSubscription) {
+    // Mettre à jour l'abonnement existant
+    console.log(`Updating existing subscription ${existingSubscription.id} for user ${userId}`);
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({
+        status: status,
+        current_period_start: new Date(fullSubscription.current_period_start * 1000).toISOString(),
+        current_period_end: new Date(fullSubscription.current_period_end * 1000).toISOString(),
+        trial_start: fullSubscription.trial_start 
+          ? new Date(fullSubscription.trial_start * 1000).toISOString() 
+          : null,
+        trial_end: fullSubscription.trial_end 
+          ? new Date(fullSubscription.trial_end * 1000).toISOString() 
+          : null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', existingSubscription.id);
+    
+    dbError = error;
+  } else {
+    // Créer un nouvel abonnement
+    console.log(`Creating new subscription for user ${userId}`);
+    const { error } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: userId,
+        stripe_subscription_id: fullSubscription.id,
+        stripe_price_id: fullSubscription.items.data[0].price.id,
+        status: status,
+        current_period_start: new Date(fullSubscription.current_period_start * 1000).toISOString(),
+        current_period_end: new Date(fullSubscription.current_period_end * 1000).toISOString(),
+        trial_start: fullSubscription.trial_start 
+          ? new Date(fullSubscription.trial_start * 1000).toISOString() 
+          : null,
+        trial_end: fullSubscription.trial_end 
+          ? new Date(fullSubscription.trial_end * 1000).toISOString() 
+          : null,
+      });
+    
+    dbError = error;
+  }
+
+  if (dbError) {
+    console.error('Error updating/creating subscription:', dbError);
     return;
   }
 
   // Mettre à jour le statut de l'utilisateur
-  await supabase
+  const { error: userError } = await supabase
     .from('users')
     .update({
       subscription_status: status,
       subscription_tier: tier,
     })
     .eq('id', userId);
+
+  if (userError) {
+    console.error('Error updating user subscription status:', userError);
+  }
+
+  console.log(`Successfully processed subscription change for user ${userId}`);
 }
 
 async function handleSubscriptionDeletion(subscription: Stripe.Subscription) {
