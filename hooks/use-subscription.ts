@@ -45,14 +45,15 @@ export function useSubscription() {
           throw userError;
         }
 
-        // Récupérer les détails de l'abonnement si actif
+        // Récupérer les détails de l'abonnement si actif ou en cours de traitement
         let subscriptionDetails = null;
-        if (userData.subscription_status === 'active' || userData.subscription_status === 'trialing') {
+        if (['active', 'trialing', 'past_due', 'canceled', 'unpaid'].includes(userData.subscription_status)) {
           const { data: subData, error: subError } = await supabase
             .from('subscriptions')
             .select('*')
             .eq('user_id', user.id)
-            .eq('status', userData.subscription_status)
+            .order('created_at', { ascending: false })
+            .limit(1)
             .single();
 
           if (!subError && subData) {

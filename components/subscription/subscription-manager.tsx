@@ -92,6 +92,9 @@ export function SubscriptionManager({
 
   const isTrialActive = subscriptionStatus === 'trialing' && trialEnd;
   const isActive = subscriptionStatus === 'active' || subscriptionStatus === 'trialing';
+  const isCanceled = subscriptionStatus === 'canceled';
+  const isPastDue = subscriptionStatus === 'past_due';
+  const isUnpaid = subscriptionStatus === 'unpaid';
 
   return (
     <Card className="p-6">
@@ -114,7 +117,7 @@ export function SubscriptionManager({
         </div>
       </div>
 
-      {isActive && (
+      {(isActive || isCanceled || isPastDue || isUnpaid) && (
         <div className="space-y-4 mb-6">
           {isTrialActive && trialEnd && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -132,13 +135,61 @@ export function SubscriptionManager({
             </div>
           )}
 
-          {currentPeriodEnd && (
+          {isCanceled && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <span className="text-red-600 mr-2">❌</span>
+                <div>
+                  <div className="font-medium text-red-900">
+                    Abonnement annulé
+                  </div>
+                  <div className="text-sm text-red-700">
+                    Votre abonnement a été annulé et ne sera pas renouvelé
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isPastDue && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <span className="text-red-600 mr-2">⚠️</span>
+                <div>
+                  <div className="font-medium text-yellow-900">
+                    Paiement en retard
+                  </div>
+                  <div className="text-sm text-yellow-700">
+                    Veuillez mettre à jour vos informations de paiement
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isUnpaid && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <span className="text-orange-600 mr-2">💳</span>
+                <div>
+                  <div className="text-orange-900">
+                    Paiement échoué
+                  </div>
+                  <div className="text-sm text-orange-700">
+                    Veuillez vérifier vos informations de paiement
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentPeriodEnd && (isActive || isCanceled) && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center">
                 <span className="text-gray-600 mr-2">📅</span>
                 <div>
                   <div className="font-medium text-gray-900">
-                    Prochaine facturation
+                    {isCanceled ? 'Fin de période' : 'Prochaine facturation'}
                   </div>
                   <div className="text-sm text-gray-700">
                     {formatDate(currentPeriodEnd)}
@@ -151,15 +202,33 @@ export function SubscriptionManager({
       )}
 
       <div className="space-y-3">
-        <Button
-          onClick={handleManageSubscription}
-          disabled={isLoading || !isActive}
-          className="w-full"
-        >
-          {isLoading ? 'Chargement...' : 'Gérer l\'abonnement'}
-        </Button>
+        {isActive && (
+          <Button
+            onClick={handleManageSubscription}
+            disabled={isLoading}
+            className="w-full"
+          >
+            {isLoading ? 'Chargement...' : 'Gérer l\'abonnement'}
+          </Button>
+        )}
 
-        {!isActive && (
+        {isCanceled && (
+          <div className="text-center space-y-3">
+            <p className="text-sm text-gray-500">
+              Votre abonnement a été annulé
+            </p>
+            <Button
+              asChild
+              className="w-full"
+            >
+              <a href="/subscription">
+                Réactiver l'abonnement
+              </a>
+            </Button>
+          </div>
+        )}
+
+        {!isActive && !isCanceled && (
           <p className="text-sm text-gray-500 text-center">
             Vous n'avez pas d'abonnement actif
           </p>

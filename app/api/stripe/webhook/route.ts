@@ -90,9 +90,43 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     return;
   }
 
-  const isTrial = fullSubscription.status === 'trialing';
-  const status = isTrial ? 'active' : fullSubscription.status;
-  const tier = 'pro';
+  // Gérer tous les statuts possibles de Stripe
+  let status: string;
+  let tier: string;
+
+  switch (fullSubscription.status) {
+    case 'trialing':
+      status = 'trialing';
+      tier = 'pro';
+      break;
+    case 'active':
+      status = 'active';
+      tier = 'pro';
+      break;
+    case 'past_due':
+      status = 'past_due';
+      tier = 'pro';
+      break;
+    case 'canceled':
+      status = 'canceled';
+      tier = 'free';
+      break;
+    case 'unpaid':
+      status = 'unpaid';
+      tier = 'free';
+      break;
+    case 'incomplete':
+      status = 'incomplete';
+      tier = 'free';
+      break;
+    case 'incomplete_expired':
+      status = 'incomplete_expired';
+      tier = 'free';
+      break;
+    default:
+      status = fullSubscription.status;
+      tier = 'free';
+  }
 
   // Validation des propriétés requises
   if (!fullSubscription.current_period_start || !fullSubscription.current_period_end) {
@@ -141,14 +175,35 @@ async function handleSubscriptionDeletion(subscription: Stripe.Subscription) {
   const userId = subscription.metadata.supabase_user_id;
   if (!userId) return;
 
+  console.log(`Handling subscription deletion for user ${userId}, subscription ${subscription.id}`);
+
   // Mettre à jour le statut de l'utilisateur
-  await supabase
+  const { error: userError } = await supabase
     .from('users')
     .update({
       subscription_status: 'canceled',
       subscription_tier: 'free',
     })
     .eq('id', userId);
+
+  if (userError) {
+    console.error('Error updating user subscription status:', userError);
+  }
+
+  // Mettre à jour le statut de l'abonnement dans la table subscriptions
+  const { error: subError } = await supabase
+    .from('subscriptions')
+    .update({
+      status: 'canceled',
+    })
+    .eq('user_id', userId)
+    .eq('stripe_subscription_id', subscription.id);
+
+  if (subError) {
+    console.error('Error updating subscription status:', subError);
+  }
+
+  console.log(`Successfully updated subscription status to canceled for user ${userId}`);
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
