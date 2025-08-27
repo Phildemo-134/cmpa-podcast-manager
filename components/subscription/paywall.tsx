@@ -87,7 +87,7 @@ export function Paywall({ onSuccess, onCancel }: PaywallProps) {
               Plan Gratuit
             </h3>
             <div className="text-3xl font-bold text-gray-900 mb-4">
-              $0<span className="text-lg text-gray-500">/mois</span>
+              0€<span className="text-lg text-gray-500">/mois</span>
             </div>
             <ul className="text-left space-y-3 mb-6">
               <li className="flex items-center text-gray-600">
@@ -125,7 +125,7 @@ export function Paywall({ onSuccess, onCancel }: PaywallProps) {
               Plan Pro
             </h3>
             <div className="text-3xl font-bold text-blue-600 mb-2">
-              $49<span className="text-lg text-gray-500">/mois</span>
+              49€<span className="text-lg text-gray-500">/mois</span>
             </div>
             <div className="text-sm text-green-600 font-medium mb-4">
               🎁 7 jours d'essai gratuit

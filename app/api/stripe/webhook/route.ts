@@ -17,7 +17,16 @@ export async function POST(request: NextRequest) {
   const headersList = await headers();
   const signature = headersList.get('stripe-signature');
 
+  // Log temporaire pour debug en production
+  console.log('=== WEBHOOK DEBUG ===');
+  console.log('Headers reçus:', Object.fromEntries(headersList.entries()));
+  console.log('Signature reçue:', signature);
+  console.log('Body length:', body.length);
+  console.log('STRIPE_WEBHOOK_SECRET configuré:', !!process.env.STRIPE_WEBHOOK_SECRET);
+  console.log('========================');
+
   if (!signature) {
+    console.error('Missing stripe signature header');
     return NextResponse.json(
       { error: 'Missing stripe signature' },
       { status: 400 }
@@ -32,8 +41,11 @@ export async function POST(request: NextRequest) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
+    console.log('✅ Webhook signature verified successfully');
   } catch (err) {
-    console.error('Webhook signature verification failed:', err);
+    console.error('❌ Webhook signature verification failed:', err);
+    console.error('Signature reçue:', signature);
+    console.error('Secret configuré:', process.env.STRIPE_WEBHOOK_SECRET ? 'OUI' : 'NON');
     return NextResponse.json(
       { error: 'Invalid signature' },
       { status: 400 }
@@ -42,6 +54,11 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object as Stripe.Checkout.Session;
+        await handleCheckoutSessionCompleted(session);
+        break;
+
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
         const subscription = event.data.object as Stripe.Subscription;
@@ -221,5 +238,39 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
       invoice.subscription as string
     );
     await handleSubscriptionChange(subscription);
+  }
+}
+
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  console.log(`Handling checkout session completed: ${session.id}`);
+  
+  // Vérifier que c'est une session de subscription
+  if (session.mode !== 'subscription') {
+    console.log('Session is not a subscription, skipping');
+    return;
+  }
+
+  const userId = session.metadata?.supabase_user_id;
+  if (!userId) {
+    console.error('No supabase_user_id found in session metadata');
+    return;
+  }
+
+  // Récupérer la subscription depuis Stripe
+  if (!session.subscription) {
+    console.error('No subscription found in session');
+    return;
+  }
+
+  try {
+    const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    console.log(`Retrieved subscription: ${subscription.id} for user: ${userId}`);
+    
+    // Traiter la subscription comme un changement normal
+    await handleSubscriptionChange(subscription);
+    
+    console.log(`Successfully processed checkout session for user ${userId}`);
+  } catch (error) {
+    console.error('Error processing checkout session:', error);
   }
 }
