@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, FileAudio, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { Upload, FileAudio, X, CheckCircle, AlertCircle, Crown } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -31,6 +31,9 @@ export function AudioUpload() {
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const router = useRouter()
+
+  // Vérifier si l'utilisateur a un abonnement actif
+  const hasActiveSubscription = true // Simplified: always true for now
 
   const validateFile = (file: File): string | null => {
     const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/aac', 'audio/ogg']
@@ -173,10 +176,21 @@ export function AudioUpload() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Ajouter un nouvel épisode</CardTitle>
-        <CardDescription>
-          Uploadez votre fichier audio et ajoutez les métadonnées de base
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Ajouter un nouvel épisode</CardTitle>
+            <CardDescription>
+              Uploadez votre fichier audio et ajoutez les métadonnées de base
+            </CardDescription>
+          </div>
+          {hasActiveSubscription && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+              <Crown className="h-4 w-4" />
+              {/* subscription?.isTrialing ? 'Essai gratuit' : 'Pro' */}
+              Pro
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Episode Details */}
@@ -323,11 +337,26 @@ export function AudioUpload() {
         {/* Upload Button */}
         <Button
           onClick={handleUpload}
-          disabled={isUploading || uploadedFiles.length === 0 || !title.trim()}
+          disabled={isUploading || uploadedFiles.length === 0 || !title.trim() || !hasActiveSubscription}
           className="w-full"
         >
           {isUploading ? 'Upload en cours...' : 'Créer l\'épisode'}
         </Button>
+        
+        {!hasActiveSubscription && (
+          <div className="text-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              ⚠️ Cette fonctionnalité nécessite un abonnement actif. 
+              <br />
+              <button
+                onClick={() => router.push('/settings')}
+                className="text-blue-600 hover:text-blue-800 underline mt-1"
+              >
+                Voir les plans d'abonnement
+              </button>
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

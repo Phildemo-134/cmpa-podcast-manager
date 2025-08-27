@@ -95,15 +95,17 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        {/* Section Connexions sociales */}
-        <div className="mb-12">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            Connexions aux réseaux sociaux
-          </h3>
-          <Suspense fallback={<div>Chargement...</div>}>
-            <SocialConnections />
-          </Suspense>
-        </div>
+        {/* Section Connexions sociales - Visible uniquement pour les abonnements actifs */}
+        {hasActiveSubscription && (
+          <div className="mb-12">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              Connexions aux réseaux sociaux
+            </h3>
+            <Suspense fallback={<div>Chargement...</div>}>
+              <SocialConnections />
+            </Suspense>
+          </div>
+        )}
 
         {/* Section Abonnement */}
         <div className="mb-12">

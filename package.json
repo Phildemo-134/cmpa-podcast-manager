@@ -25,6 +25,7 @@
     "test:tweets": "node scripts/test-tweet-generation.js",
     "test:scheduling": "node scripts/test-tweet-scheduling.js",
     "test:stripe:production": "node scripts/test-stripe-production.js",
+    "test:upload": "node scripts/test-upload-page.js",
     "fix:subscription": "node scripts/fix-subscription-status.js",
     "debug:subscription": "node scripts/debug-subscription-status.js",
     "migrate:tweets": "node scripts/apply-scheduled-tweets-migration.js",

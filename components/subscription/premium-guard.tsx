@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react';
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
+import { useSubscription } from '@/hooks/use-subscription';
 import { Paywall } from './paywall';
 
 interface PremiumGuardProps {
@@ -15,9 +16,10 @@ export function PremiumGuard({
   fallback, 
   showPaywall = true 
 }: PremiumGuardProps) {
-  const { user, isLoading } = useSupabaseAuth();
+  const { user, isLoading: authLoading } = useSupabaseAuth();
+  const { subscription, isLoading: subscriptionLoading } = useSubscription();
 
-  if (isLoading) {
+  if (authLoading || subscriptionLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -33,9 +35,8 @@ export function PremiumGuard({
     );
   }
 
-  // Vérifier si l'utilisateur a un abonnement actif
-  const hasActiveSubscription = user.user_metadata?.subscription_status === 'active' || 
-                              user.user_metadata?.subscription_status === 'trialing';
+  // Vérifier si l'utilisateur a un abonnement actif ou en essai
+  const hasActiveSubscription = subscription?.isActive || subscription?.isTrialing;
 
   if (!hasActiveSubscription && showPaywall) {
     return (
