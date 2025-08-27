@@ -221,7 +221,7 @@ export function SubscriptionManager({
               asChild
               className="w-full"
             >
-              <a href="/subscription">
+              <a href="/settings">
                 Réactiver l'abonnement
               </a>
             </Button>

@@ -15,7 +15,6 @@ export function MobileNav({ currentPage }: MobileNavProps) {
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Publications', href: '/schedule-tweet' },
     { name: 'Réglages', href: '/settings' },
-    { name: 'Plans & Abonnement', href: '/subscription' },
   ];
 
   return (

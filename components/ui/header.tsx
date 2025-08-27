@@ -1,4 +1,3 @@
-import { SignOutButton } from '../auth/sign-out-button'
 import { SubscriptionBadge } from '../subscription'
 import { MobileNav } from './mobile-nav'
 
@@ -36,32 +35,21 @@ export function Header({ currentPage }: HeaderProps) {
               >
                 Publications
               </a>
-              <a
-                href="/settings"
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  currentPage === 'settings'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Réglages
-              </a>
-              <a
-                href="/subscription"
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  currentPage === 'subscription'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Plans & Abonnement
-              </a>
             </nav>
           </div>
           
           <div className="flex items-center gap-4">
             <SubscriptionBadge />
-            <SignOutButton />
+            <a
+              href="/settings"
+              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                currentPage === 'settings'
+                  ? 'text-blue-700 font-semibold'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Réglages
+            </a>
             <MobileNav currentPage={currentPage} />
           </div>
         </div>
