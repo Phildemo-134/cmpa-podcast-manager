@@ -112,7 +112,7 @@ export function SubscriptionManager({
             {getStatusText(subscriptionStatus || '')}
           </div>
           <div className="text-xs text-gray-500">
-            {subscriptionTier === 'pro' ? 'Plan Pro' : 'Plan Gratuit'}
+            {subscriptionTier === 'pro' ? 'Plan Pro' : 'Aucun abonnement'}
           </div>
         </div>
       </div>

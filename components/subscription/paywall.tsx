@@ -75,49 +75,16 @@ export function Paywall({ onSuccess, onCancel }: PaywallProps) {
         </h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Transformez vos enregistrements audio en contenu optimisé pour toutes les plateformes 
-          grâce à l'intelligence artificielle.
+          grâce à l'intelligence artificielle. Un abonnement est requis pour accéder à l'application.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-8">
-        {/* Plan Gratuit */}
-        <Card className="p-6 border-2 border-gray-200">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Plan Gratuit
-            </h3>
-            <div className="text-3xl font-bold text-gray-900 mb-4">
-              0€<span className="text-lg text-gray-500">/mois</span>
-            </div>
-            <ul className="text-left space-y-3 mb-6">
-              <li className="flex items-center text-gray-600">
-                <span className="text-green-500 mr-2">✓</span>
-                Accès de base à la plateforme
-              </li>
-              <li className="flex items-center text-gray-600">
-                <span className="text-green-500 mr-2">✓</span>
-                Gestion des épisodes
-              </li>
-              <li className="flex items-center text-gray-600">
-                <span className="text-green-500 mr-2">✓</span>
-                Support communautaire
-              </li>
-            </ul>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={onCancel}
-            >
-              Continuer gratuitement
-            </Button>
-          </div>
-        </Card>
-
+      <div className="max-w-2xl mx-auto mb-8">
         {/* Plan Pro */}
         <Card className="p-6 border-2 border-blue-500 bg-blue-50 relative">
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
             <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-              Recommandé
+              Plan Premium
             </span>
           </div>
           <div className="text-center">

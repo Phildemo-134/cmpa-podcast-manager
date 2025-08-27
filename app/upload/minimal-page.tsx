@@ -24,7 +24,7 @@ export default function UploadMinimalPage() {
               </Button>
               <h1 className="text-xl font-semibold text-gray-900">
                 Page Upload Minimaliste
-              </1>
+              </h1>
             </div>
           </div>
         </div>
