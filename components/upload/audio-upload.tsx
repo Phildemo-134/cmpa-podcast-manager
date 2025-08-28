@@ -104,21 +104,66 @@ export function AudioUpload() {
       throw new Error('Session utilisateur non trouvée')
     }
 
-    const response = await fetch('/api/upload-audio', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-      },
-      body: formData,
-    })
+    console.log('🚀 Début de l\'upload vers l\'API...')
+    console.log('📁 Fichier:', file.name, 'Taille:', file.size, 'Type:', file.type)
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error || 'Erreur lors de l\'upload')
+    try {
+      const response = await fetch('/api/upload-audio', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      })
+
+      console.log('📡 Réponse reçue:', response.status, response.statusText)
+
+      if (!response.ok) {
+        // Essayer de parser la réponse comme JSON
+        let errorMessage = 'Erreur lors de l\'upload'
+        
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || `Erreur ${response.status}: ${response.statusText}`
+        } catch (parseError) {
+          // Si le parsing JSON échoue, essayer de lire le texte
+          try {
+            const errorText = await response.text()
+            console.error('❌ Réponse d\'erreur non-JSON:', errorText.substring(0, 500))
+            
+            if (errorText.includes('Request Entity Too Large')) {
+              errorMessage = 'Fichier trop volumineux'
+            } else if (errorText.includes('Unauthorized')) {
+              errorMessage = 'Session expirée, veuillez vous reconnecter'
+            } else if (errorText.includes('Internal Server Error')) {
+              errorMessage = 'Erreur serveur interne, veuillez réessayer'
+            } else {
+              errorMessage = `Erreur ${response.status}: ${response.statusText}`
+            }
+          } catch (textError) {
+            errorMessage = `Erreur ${response.status}: ${response.statusText}`
+          }
+        }
+        
+        throw new Error(errorMessage)
+      }
+
+      // Essayer de parser la réponse JSON
+      try {
+        const result = await response.json()
+        console.log('✅ Upload réussi:', result)
+        return result
+      } catch (parseError) {
+        console.error('❌ Erreur de parsing de la réponse:', parseError)
+        const responseText = await response.text()
+        console.error('📄 Réponse brute:', responseText.substring(0, 500))
+        throw new Error('Réponse invalide du serveur')
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'upload:', error)
+      throw error
     }
-
-    const result = await response.json()
-    return result
   }
 
   // Cette fonction n'est plus nécessaire car l'épisode est créé côté serveur
