@@ -2,7 +2,7 @@ import { SubscriptionBadge } from '../subscription'
 import { MobileNav } from './mobile-nav'
 
 interface HeaderProps {
-  currentPage: 'dashboard' | 'upload' | 'settings' | 'episode' | 'schedule-tweet' | 'subscription'
+  currentPage: string
 }
 
 export function Header({ currentPage }: HeaderProps) {

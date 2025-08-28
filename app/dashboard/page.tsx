@@ -1,12 +1,12 @@
 import { EpisodeList } from '../../components/episodes/episode-list'
 import { Header } from '../../components/ui/header'
 import { ProtectedRoute } from '../../components/auth/protected-route'
-import { SubscriptionGuard } from '../../components/subscription'
+import { SubscriptionToastGuard } from '../../components/subscription'
 
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <SubscriptionGuard>
+      <SubscriptionToastGuard>
         <div className="min-h-screen bg-gray-50">
           <Header currentPage="dashboard" />
 
@@ -17,7 +17,7 @@ export default function DashboardPage() {
             </div>
           </main>
         </div>
-      </SubscriptionGuard>
+      </SubscriptionToastGuard>
     </ProtectedRoute>
   )
 }

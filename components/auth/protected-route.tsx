@@ -47,6 +47,8 @@ export function ProtectedRoute({
     async function checkSubscription() {
       setIsSubscriptionLoading(true)
       try {
+        if (!user) return // Vérification supplémentaire
+        
         const { data, error } = await supabase
           .from('users')
           .select('subscription_status, subscription_tier')

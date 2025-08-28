@@ -7,3 +7,4 @@ export { SubscriptionCTA } from './subscription-cta';
 export { SubscriptionCheck } from './subscription-check';
 export { SubscriptionGuard } from './subscription-guard';
 export { SubscriptionRedirectNotification } from './subscription-redirect-notification';
+export { SubscriptionToastGuard } from './subscription-toast-guard';

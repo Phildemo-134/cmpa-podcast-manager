@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from './use-supabase-auth';
-import { logError } from '../lib/error-handler';
+import { formatErrorMessage } from '../lib/error-handler';
 import { getUserSubscriptionStatus, getSubscriptionDetails, hasActiveSubscription } from '../lib/supabase-helpers';
 
 interface Subscription {
@@ -65,7 +65,7 @@ export function useSubscription() {
         setSubscription(subscriptionInfo);
       } catch (err) {
         // Utiliser l'utilitaire de gestion d'erreurs
-        const errorMessage = logError('Error fetching subscription', err, 'Une erreur est survenue lors de la récupération de l\'abonnement');
+        const errorMessage = formatErrorMessage(err, 'Une erreur est survenue lors de la récupération de l\'abonnement');
         setError(errorMessage);
       } finally {
         setIsLoading(false);

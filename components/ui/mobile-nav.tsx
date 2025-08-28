@@ -5,7 +5,7 @@ import { Menu, X } from 'lucide-react';
 import { SubscriptionBadge } from '../subscription';
 
 interface MobileNavProps {
-  currentPage: 'dashboard' | 'upload' | 'settings' | 'episode' | 'schedule-tweet' | 'subscription';
+  currentPage: string;
 }
 
 export function MobileNav({ currentPage }: MobileNavProps) {

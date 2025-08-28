@@ -5,14 +5,14 @@ import { Button } from '../../components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ProtectedRoute } from '../../components/auth/protected-route'
-import { SubscriptionGuard } from '../../components/subscription'
+import { SubscriptionToastGuard } from '../../components/subscription'
 
 export default function UploadPage() {
   const router = useRouter()
 
   return (
     <ProtectedRoute>
-      <SubscriptionGuard>
+      <SubscriptionToastGuard>
         <div className="min-h-screen bg-gray-50">
           {/* Header */}
           <header className="bg-white shadow-sm border-b">
@@ -52,7 +52,7 @@ export default function UploadPage() {
             <AudioUpload />
           </main>
         </div>
-      </SubscriptionGuard>
+      </SubscriptionToastGuard>
     </ProtectedRoute>
   )
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { WithToasts } from "../components/layout/with-toasts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -124,7 +125,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-background text-foreground min-h-screen">
         <div className="relative flex min-h-screen flex-col">
-          {children}
+          <WithToasts>
+            {children}
+          </WithToasts>
         </div>
       </body>
     </html>
