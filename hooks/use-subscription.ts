@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSupabaseAuth } from './use-supabase-auth';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { logError } from '../lib/error-handler';
+import { getUserSubscriptionStatus, getSubscriptionDetails, hasActiveSubscription } from '../lib/supabase-helpers';
 
 interface Subscription {
   id: string;
@@ -34,31 +30,26 @@ export function useSubscription() {
         setIsLoading(true);
         setError(null);
 
-        // Récupérer les informations de l'utilisateur
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('subscription_status, subscription_tier')
-          .eq('id', user.id)
-          .single();
-
-        if (userError) {
-          throw userError;
+        // Utiliser les fonctions utilitaires sécurisées
+        const userData = await getUserSubscriptionStatus(user.id);
+        
+        if (!userData) {
+          // Utilisateur non trouvé, utiliser des valeurs par défaut
+          const subscriptionInfo: Subscription = {
+            id: '',
+            status: 'free',
+            tier: 'free',
+            isActive: false,
+            isTrialing: false,
+          };
+          setSubscription(subscriptionInfo);
+          return;
         }
 
         // Récupérer les détails de l'abonnement si actif ou en cours de traitement
         let subscriptionDetails = null;
-        if (['active', 'trialing', 'past_due', 'canceled', 'unpaid'].includes(userData.subscription_status)) {
-          const { data: subData, error: subError } = await supabase
-            .from('subscriptions')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-          if (!subError && subData) {
-            subscriptionDetails = subData;
-          }
+        if (hasActiveSubscription(userData.subscription_status)) {
+          subscriptionDetails = await getSubscriptionDetails(user.id);
         }
 
         const subscriptionInfo: Subscription = {
@@ -67,14 +58,15 @@ export function useSubscription() {
           tier: userData.subscription_tier || 'free',
           trialEnd: subscriptionDetails?.trial_end || undefined,
           currentPeriodEnd: subscriptionDetails?.current_period_end || undefined,
-          isActive: userData.subscription_status === 'active' || userData.subscription_status === 'trialing',
+          isActive: hasActiveSubscription(userData.subscription_status),
           isTrialing: userData.subscription_status === 'trialing',
         };
 
         setSubscription(subscriptionInfo);
       } catch (err) {
-        console.error('Error fetching subscription:', err);
-        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+        // Utiliser l'utilitaire de gestion d'erreurs
+        const errorMessage = logError('Error fetching subscription', err, 'Une erreur est survenue lors de la récupération de l\'abonnement');
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }

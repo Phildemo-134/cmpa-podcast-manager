@@ -6,13 +6,10 @@ import { SocialConnections } from '../../components/settings/social-connections'
 import { Header } from '../../components/ui/header';
 import { Paywall } from '@/components/subscription/paywall';
 import { SubscriptionManager } from '@/components/subscription/subscription-manager';
+import { SubscriptionRedirectNotification } from '@/components/subscription/subscription-redirect-notification';
 import { SignOutButton } from '@/components/auth/sign-out-button';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getUserSubscriptionStatus, hasActiveSubscription } from '../../lib/supabase-helpers';
+import { logError } from '../../lib/error-handler';
 
 interface UserSubscription {
   subscription_status: string;
@@ -34,19 +31,13 @@ export default function SettingsPage() {
       }
 
       try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('subscription_status, subscription_tier')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching user subscription:', error);
-        } else {
-          setUserSubscription(data);
-        }
-      } catch (error) {
-        console.error('Error:', error);
+        // Utiliser la fonction utilitaire sécurisée
+        const userData = await getUserSubscriptionStatus(user.id);
+        setUserSubscription(userData);
+      } catch (catchError: unknown) {
+        // Utiliser l'utilitaire de gestion d'erreurs
+        const errorMessage = logError('Error in fetchUserSubscription', catchError, 'Une erreur inattendue est survenue');
+        console.error('Error in fetchUserSubscription:', errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -94,6 +85,9 @@ export default function SettingsPage() {
             Gérez vos connexions aux réseaux sociaux, vos préférences et votre abonnement
           </p>
         </div>
+
+        {/* Notification de redirection pour les utilisateurs non abonnés */}
+        <SubscriptionRedirectNotification />
 
         {/* Section Connexions sociales - Visible uniquement pour les abonnements actifs */}
         {hasActiveSubscription && (

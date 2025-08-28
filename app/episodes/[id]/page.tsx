@@ -40,7 +40,7 @@ import { TweetGenerator } from '../../../components/episodes/tweet-generator'
 import { ScheduledTweets } from '../../../components/episodes/scheduled-tweets'
 import { youtubeAcces, youtubeAbonnement, spotifyAcces, spotifyAbonnement } from '../../../lib/donnees-publication'
 import { ProtectedRoute } from '../../../components/auth/protected-route'
-import { SubscriptionCheck } from '../../../components/subscription'
+import { SubscriptionGuard } from '../../../components/subscription'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -568,7 +568,7 @@ export default function EpisodeDetailPage() {
 
   return (
     <ProtectedRoute>
-      <SubscriptionCheck>
+              <SubscriptionGuard>
         <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
@@ -1050,7 +1050,7 @@ export default function EpisodeDetailPage() {
           </div>
         </main>
       </div>
-      </SubscriptionCheck>
+              </SubscriptionGuard>
     </ProtectedRoute>
   )
 }
