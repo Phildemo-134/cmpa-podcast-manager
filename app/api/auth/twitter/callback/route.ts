@@ -69,7 +69,11 @@ export async function GET(request: NextRequest) {
         code_verifier: stateData.code_verifier || ''
       })
     })
-    console.log('tokenResponse', tokenResponse)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('tokenResponse', tokenResponse);
+      }
+    }
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
       console.error('Erreur lors de l\'échange du token:', errorText)
@@ -122,7 +126,11 @@ export async function GET(request: NextRequest) {
       .delete()
       .eq('state', state)
 
-    console.log('Connexion Twitter réussie pour l\'utilisateur:', stateData.user_id)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Connexion Twitter réussie pour l\'utilisateur:', stateData.user_id);
+      }
+    }
 
     // Rediriger vers la page de réglages avec un message de succès
     return NextResponse.redirect(new URL('/settings?success=twitter_connected', request.url))

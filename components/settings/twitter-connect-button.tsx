@@ -73,8 +73,14 @@ export function TwitterConnectButton() {
       twitterAuthUrl.searchParams.set('code_challenge_method', 'S256')
       twitterAuthUrl.searchParams.set('code_challenge', codeChallenge)
 
-      console.log('Redirection vers Twitter OAuth2:', twitterAuthUrl.toString())
-      console.log('Utilisateur connecté:', user.email)
+          if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Redirection vers Twitter OAuth2:', twitterAuthUrl.toString());
+      }
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Utilisateur connecté:', user.email);
+      }
+    }
       
       // Rediriger vers Twitter
       window.location.href = twitterAuthUrl.toString()

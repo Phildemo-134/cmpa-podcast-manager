@@ -73,8 +73,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Effectuer la transcription avec Deepgram
-    console.log(`Début de la transcription pour l'épisode ${episodeId}`)
-    console.log(`URL audio: ${episode.audio_file_url}`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Début de la transcription pour l'épisode ${episodeId}`);
+      }
+      if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`URL audio: ${episode.audio_file_url}`);
+      }
+      }
+    }
     
     try {
       // Effectuer la transcription
@@ -119,7 +127,11 @@ export async function POST(request: NextRequest) {
         throw updateEpisodeError
       }
       
-      console.log(`Transcription terminée pour l'épisode ${episodeId}`)
+      if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`Transcription terminée pour l'épisode ${episodeId}`);
+      }
+      }
       
     } catch (transcriptionError) {
       console.error('Erreur lors de la transcription Deepgram:', transcriptionError)

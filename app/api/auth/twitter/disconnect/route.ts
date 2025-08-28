@@ -37,7 +37,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Déconnexion Twitter réussie pour l\'utilisateur:', user.id)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Déconnexion Twitter réussie pour l\'utilisateur:', user.id);
+      }
+    }
 
     return NextResponse.json({ 
       success: true, 

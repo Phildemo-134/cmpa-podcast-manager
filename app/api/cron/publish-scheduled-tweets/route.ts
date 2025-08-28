@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('⏰ Démarrage du cron job de publication des tweets')
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⏰ Démarrage du cron job de publication des tweets');
+      }
+    }
     
     // Récupérer tous les tweets planifiés à publier maintenant
     const now = new Date()
@@ -43,7 +47,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (!tweetsToPublish || tweetsToPublish.length === 0) {
-      console.log('✨ Aucun tweet à publier pour le moment')
+      if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log('✨ Aucun tweet à publier pour le moment');
+      }
+      }
       return NextResponse.json({ 
         success: true, 
         message: 'Aucun tweet à publier',
@@ -51,7 +59,11 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    console.log(`📋 ${tweetsToPublish.length} tweet(s) à publier`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📋 ${tweetsToPublish.length} tweet(s) à publier`);
+      }
+    }
 
     let publishedCount = 0
     let failedCount = 0
@@ -59,9 +71,21 @@ export async function POST(request: NextRequest) {
     // Traiter chaque tweet
     for (const tweet of tweetsToPublish) {
       try {
-        console.log(`🚀 Publication du tweet ID: ${tweet.id}`)
-        console.log(`📝 Contenu: ${tweet.content}`)
-        console.log(`📅 Planifié pour: ${new Date(tweet.scheduled_at).toLocaleString('fr-FR')}`)
+        if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development') {
+        console.log(`🚀 Publication du tweet ID: ${tweet.id}`);
+      }
+          if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`📝 Contenu: ${tweet.content}`);
+      }
+      }
+          if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`📅 Planifié pour: ${new Date(tweet.scheduled_at).toLocaleString('fr-FR')}`);
+      }
+      }
+        }
 
         // Publier sur Twitter via notre API
         const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/social/twitter/post-scheduled`, {
@@ -94,7 +118,11 @@ export async function POST(request: NextRequest) {
           throw updateError
         }
 
-        console.log(`✅ Tweet publié avec succès`)
+        if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ Tweet publié avec succès`);
+      }
+        }
         publishedCount++
 
       } catch (error) {
@@ -114,7 +142,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`🎉 Traitement terminé: ${publishedCount} publié(s), ${failedCount} échoué(s)`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🎉 Traitement terminé: ${publishedCount} publié(s), ${failedCount} échoué(s)`);
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -139,7 +171,11 @@ export async function POST(request: NextRequest) {
  */
 export async function GET() {
   try {
-    console.log('⏰ Démarrage du cron job Vercel de publication des tweets')
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⏰ Démarrage du cron job Vercel de publication des tweets');
+      }
+    }
     
     // Récupérer tous les tweets planifiés à publier maintenant
     const now = new Date()
@@ -159,7 +195,11 @@ export async function GET() {
     }
 
     if (!tweetsToPublish || tweetsToPublish.length === 0) {
-      console.log('✨ Aucun tweet à publier pour le moment')
+      if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log('✨ Aucun tweet à publier pour le moment');
+      }
+      }
       return NextResponse.json({ 
         success: true, 
         message: 'Aucun tweet à publier',
@@ -167,7 +207,11 @@ export async function GET() {
       })
     }
 
-    console.log(`📋 ${tweetsToPublish.length} tweet(s) à publier`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📋 ${tweetsToPublish.length} tweet(s) à publier`);
+      }
+    }
 
     let publishedCount = 0
     let failedCount = 0
@@ -175,9 +219,21 @@ export async function GET() {
     // Traiter chaque tweet
     for (const tweet of tweetsToPublish) {
       try {
-        console.log(`🚀 Publication du tweet ID: ${tweet.id}`)
-        console.log(`📝 Contenu: ${tweet.content}`)
-        console.log(`📅 Planifié pour: ${new Date(tweet.scheduled_at).toLocaleString('fr-FR')}`)
+        if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development') {
+        console.log(`🚀 Publication du tweet ID: ${tweet.id}`);
+      }
+          if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`📝 Contenu: ${tweet.content}`);
+      }
+      }
+          if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`📅 Planifié pour: ${new Date(tweet.scheduled_at).toLocaleString('fr-FR')}`);
+      }
+      }
+        }
 
         // Publier sur Twitter via notre API
         const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/social/twitter/post-scheduled`, {
@@ -210,7 +266,11 @@ export async function GET() {
           throw updateError
         }
 
-        console.log(`✅ Tweet publié avec succès`)
+        if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ Tweet publié avec succès`);
+      }
+        }
         publishedCount++
 
       } catch (error) {
@@ -230,7 +290,11 @@ export async function GET() {
       }
     }
 
-    console.log(`🎉 Traitement terminé: ${publishedCount} publié(s), ${failedCount} échoué(s)`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🎉 Traitement terminé: ${publishedCount} publié(s), ${failedCount} échoué(s)`);
+      }
+    }
 
     return NextResponse.json({
       success: true,

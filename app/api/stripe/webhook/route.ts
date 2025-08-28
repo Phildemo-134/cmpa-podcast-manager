@@ -17,13 +17,12 @@ export async function POST(request: NextRequest) {
   const headersList = await headers();
   const signature = headersList.get('stripe-signature');
 
-  // Log temporaire pour debug en production
-  console.log('=== WEBHOOK DEBUG ===');
-  console.log('Headers reçus:', Object.fromEntries(headersList.entries()));
-  console.log('Signature reçue:', signature);
-  console.log('Body length:', body.length);
-  console.log('STRIPE_WEBHOOK_SECRET configuré:', !!process.env.STRIPE_WEBHOOK_SECRET);
-  console.log('========================');
+  // Log minimal pour le monitoring en production
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log('Webhook Stripe reçu - Body length:', body.length);
+      }
+  }
 
   if (!signature) {
     console.error('Missing stripe signature header');
@@ -41,7 +40,11 @@ export async function POST(request: NextRequest) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-    console.log('✅ Webhook signature verified successfully');
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Webhook signature verified successfully');
+      }
+    }
   } catch (err) {
     console.error('❌ Webhook signature verification failed:', err);
     console.error('Signature reçue:', signature);
@@ -81,7 +84,11 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
+        if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development') {
         console.log(`Unhandled event type: ${event.type}`);
+      }
+        }
     }
 
     return NextResponse.json({ received: true });
@@ -98,7 +105,11 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
   const userId = subscription.metadata.supabase_user_id;
   if (!userId) return;
 
-  console.log(`Handling subscription change for user ${userId}, subscription ${subscription.id}`);
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Handling subscription change for user ${userId}, subscription ${subscription.id}`);
+      }
+  }
 
   // Récupérer la subscription complète depuis Stripe pour avoir toutes les propriétés
   let fullSubscription: Stripe.Subscription;
@@ -158,7 +169,11 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
   }
 
   // Utiliser UPSERT pour éviter les race conditions
-  console.log(`Upserting subscription for user ${userId}`);
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Upserting subscription for user ${userId}`);
+      }
+  }
   const { error: upsertError } = await supabase
     .from('subscriptions')
     .upsert({
@@ -198,14 +213,22 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     console.error('Error updating user subscription status:', userError);
   }
 
-  console.log(`Successfully processed subscription change for user ${userId}`);
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Successfully processed subscription change for user ${userId}`);
+      }
+  }
 }
 
 async function handleSubscriptionDeletion(subscription: Stripe.Subscription) {
   const userId = subscription.metadata.supabase_user_id;
   if (!userId) return;
 
-  console.log(`Handling subscription deletion for user ${userId}, subscription ${subscription.id}`);
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Handling subscription deletion for user ${userId}, subscription ${subscription.id}`);
+      }
+  }
 
   // Mettre à jour le statut de l'utilisateur
   const { error: userError } = await supabase
@@ -233,7 +256,11 @@ async function handleSubscriptionDeletion(subscription: Stripe.Subscription) {
     console.error('Error updating subscription status:', subError);
   }
 
-  console.log(`Successfully updated subscription status to canceled for user ${userId}`);
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Successfully updated subscription status to canceled for user ${userId}`);
+      }
+  }
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
@@ -255,11 +282,19 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 }
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-  console.log(`Handling checkout session completed: ${session.id}`);
+  if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(`Handling checkout session completed: ${session.id}`);
+      }
+  }
   
   // Vérifier que c'est une session de subscription
   if (session.mode !== 'subscription') {
-    console.log('Session is not a subscription, skipping');
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Session is not a subscription, skipping');
+      }
+    }
     return;
   }
 
@@ -277,12 +312,20 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
   try {
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-    console.log(`Retrieved subscription: ${subscription.id} for user: ${userId}`);
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Retrieved subscription: ${subscription.id} for user: ${userId}`);
+      }
+    }
     
     // Traiter la subscription comme un changement normal
     await handleSubscriptionChange(subscription);
     
-    console.log(`Successfully processed checkout session for user ${userId}`);
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Successfully processed checkout session for user ${userId}`);
+      }
+    }
   } catch (error) {
     console.error('Error processing checkout session:', error);
   }

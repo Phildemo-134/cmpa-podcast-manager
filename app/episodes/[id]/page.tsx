@@ -147,13 +147,25 @@ export default function EpisodeDetailPage() {
 
   // Fonction pour mettre à jour la transcription après édition des speakers
   const handleTranscriptionUpdated = (updatedTranscription: Transcription) => {
-    console.log('🔍 handleTranscriptionUpdated appelé avec:', updatedTranscription)
-    console.log('🔍 Ancienne transcription:', transcription)
-    console.log('🔍 Nouveaux timestamps:', updatedTranscription.timestamps)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 handleTranscriptionUpdated appelé avec:', updatedTranscription);
+      }
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 Ancienne transcription:', transcription);
+      }
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 Nouveaux timestamps:', updatedTranscription.timestamps);
+      }
+    }
     
     setTranscription(updatedTranscription)
     
-    console.log('🔍 Transcription mise à jour dans l\'état local')
+          if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 Transcription mise à jour dans l\'état local');
+      }
+      }
   }
 
   useEffect(() => {

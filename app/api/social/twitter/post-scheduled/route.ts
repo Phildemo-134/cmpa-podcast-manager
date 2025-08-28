@@ -42,8 +42,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`📱 Publication sur Twitter pour l'utilisateur ${userId}`)
-    console.log(`🔑 Utilisation du token: ${connection.access_token.substring(0, 20)}...`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📱 Publication sur Twitter pour l'utilisateur ${userId}`);
+      }
+      if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`🔑 Utilisation du token: ${connection.access_token.substring(0, 20)}...`);
+      }
+      }
+    }
 
     // Publier le tweet via l'API Twitter
     const twitterResponse = await fetch('https://api.twitter.com/2/tweets', {
@@ -74,9 +82,19 @@ export async function POST(request: NextRequest) {
     }
 
     const tweetData = await twitterResponse.json()
-    console.log(`✅ Tweet publié avec succès sur Twitter`)
-    console.log(`   Tweet ID: ${tweetData.data?.id}`)
-    console.log(`   Contenu: "${content}"`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ Tweet publié avec succès sur Twitter`);
+      }
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`   Tweet ID: ${tweetData.data?.id}`);
+      }
+      if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+        console.log(`   Contenu: "${content}"`);
+      }
+      }
+    }
     
     return NextResponse.json({
       success: true,

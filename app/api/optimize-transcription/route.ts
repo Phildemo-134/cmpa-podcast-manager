@@ -190,11 +190,19 @@ export async function POST(request: NextRequest) {
       )
     ).sort()
 
-    console.log('🔍 Speakers détectés:', speakerNames)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 Speakers détectés:', speakerNames);
+      }
+    }
 
     // Diviser le texte en parties de 10 000 mots maximum
     const textChunks = splitTextIntoChunks(transcriptionText, 10000)
-    console.log(`📝 Texte divisé en ${textChunks.length} parties pour l'optimisation`)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📝 Texte divisé en ${textChunks.length} parties pour l'optimisation`);
+      }
+    }
 
     // Exécuter les optimisations en parallèle
     const optimizationPromises = textChunks.map((chunk, index) => 
@@ -203,7 +211,11 @@ export async function POST(request: NextRequest) {
 
     // Attendre que toutes les optimisations soient terminées
     const optimizedChunks = await Promise.all(optimizationPromises)
-    console.log('✅ Toutes les parties ont été optimisées')
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Toutes les parties ont été optimisées');
+      }
+    }
 
     // Rassembler les parties optimisées
     const optimizedText = optimizedChunks.join('\n\n')

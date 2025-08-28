@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/publish-scheduled-tweets",
-      "schedule": "*/1 * * * *"
+      "schedule": "*/10 * * * *"
     }
   ]
 }

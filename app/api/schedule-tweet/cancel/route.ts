@@ -55,7 +55,11 @@ export async function POST(request: NextRequest) {
         updateData.updated_at = new Date().toISOString()
       }
     } catch (columnError) {
-      console.log('Colonne updated_at non disponible')
+              if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development') {
+        console.log('Colonne updated_at non disponible');
+      }
+        }
     }
 
     // Mettre à jour le statut du tweet

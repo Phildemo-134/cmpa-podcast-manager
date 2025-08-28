@@ -11,7 +11,11 @@ const supabase = createClient<Database>(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log('📝 Données reçues:', body)
+    if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📝 Données reçues:', body);
+      }
+    }
     
     const { content, scheduledDate, scheduledTime, episodeId } = body
 

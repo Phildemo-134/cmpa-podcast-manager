@@ -11,7 +11,11 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { transcriptionId, speakerMappings } = body
 
-    console.log('🔍 API update-speakers appelée avec:', { transcriptionId, speakerMappings })
+    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 API update-speakers appelée avec:', { transcriptionId, speakerMappings });
+      }
+  }
 
     if (!transcriptionId || !speakerMappings) {
       return NextResponse.json(
