@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
           duration: duration,
           timestamps: timestamps?.trim() || null,
           video_url: videoUrl?.trim() || null,
-          status: 'uploading',
+          status: 'uploaded',
           s3_key: '', // Sera mis à jour après l'upload S3
         }
       ])

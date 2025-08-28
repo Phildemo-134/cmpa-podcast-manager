@@ -25,7 +25,7 @@ export interface Episode {
   audio_file_url: string;
   description?: string | null;
   duration: number | null;
-  status: 'uploading' | 'transcribing' | 'processing' | 'completed' | 'error' | 'published' | 'failed' | 'draft' | null;
+  status: 'draft' | 'uploaded' | 'transcribing' | 'transcribed' | 'optimizing' | 'optimized' | 'generating_content' | 'completed' | 'published' | 'failed' | 'error' | null;
   created_at: string | null;
   updated_at: string | null;
   error_message?: string | null;

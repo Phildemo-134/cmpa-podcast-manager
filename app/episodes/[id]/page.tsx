@@ -21,7 +21,8 @@ import {
   Sparkles,
   CheckCircle,
   Clock,
-  Cpu
+  Cpu,
+  Upload
 } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card'
@@ -50,9 +51,16 @@ const supabase = createClient(
 // Configuration des statuts pour affichage discret
 const statusConfig = {
   draft: { label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-50', icon: Clock },
-  processing: { label: 'Traitement IA', color: 'text-purple-600', bg: 'bg-purple-50', icon: Cpu },
+  uploaded: { label: 'Uploadé', color: 'text-blue-600', bg: 'bg-blue-50', icon: Upload },
+  transcribing: { label: 'Transcription', color: 'text-yellow-600', bg: 'bg-yellow-50', icon: FileAudio },
+  transcribed: { label: 'Transcrit', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
+  optimizing: { label: 'Optimisation', color: 'text-purple-600', bg: 'bg-purple-50', icon: Cpu },
+  optimized: { label: 'Optimisé', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
+  generating_content: { label: 'Génération contenu', color: 'text-purple-600', bg: 'bg-purple-50', icon: Cpu },
+  completed: { label: 'Terminé', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
   published: { label: 'Publié', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
-  failed: { label: 'Échec', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
+  failed: { label: 'Échec', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle },
+  error: { label: 'Erreur', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
 }
 
 
@@ -355,7 +363,7 @@ export default function EpisodeDetailPage() {
     }
   }
 
-  const handleStatusChange = async (newStatus: 'draft' | 'processing' | 'published' | 'failed' | 'uploading' | 'transcribing' | 'completed' | 'error') => {
+  const handleStatusChange = async (newStatus: 'draft' | 'uploaded' | 'transcribing' | 'transcribed' | 'optimizing' | 'optimized' | 'generating_content' | 'completed' | 'published' | 'failed' | 'error') => {
     if (!episode) return
 
     try {
@@ -398,7 +406,7 @@ export default function EpisodeDetailPage() {
       await response.json()
       
       // Mettre à jour l'interface
-      setEpisode(prev => prev ? { ...prev, status: 'processing' } : null)
+      setEpisode(prev => prev ? { ...prev, status: 'transcribing' } : null)
       
       // Démarrer le polling pour vérifier le statut
       startTranscriptionPolling(episode.id)
@@ -567,9 +575,8 @@ export default function EpisodeDetailPage() {
 
 
   return (
-    <ProtectedRoute>
-              <SubscriptionGuard>
-        <div className="min-h-screen bg-gray-50">
+    <ProtectedRoute requireActiveSubscription={false}>
+      <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -900,7 +907,7 @@ export default function EpisodeDetailPage() {
                     <FileText className="h-5 w-5" />
                     Transcription
                   </CardTitle>
-                  {!transcription && episode.status !== 'processing' && (
+                  {!transcription && episode.status !== 'transcribing' && (
                     <Button 
                       onClick={handleTranscribe}
                       disabled={isTranscribing}
@@ -961,7 +968,7 @@ export default function EpisodeDetailPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                {episode.status === 'processing' && !transcription && (
+                {episode.status === 'transcribing' && !transcription && (
                   <div className="text-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
                     <p className="text-gray-600">Transcription en cours...</p>
@@ -995,7 +1002,7 @@ export default function EpisodeDetailPage() {
                   </div>
                 )}
                 
-                {!transcription && episode.status !== 'processing' && (
+                {!transcription && episode.status !== 'transcribing' && (
                   <div className="text-center py-8 text-gray-500">
                     <Mic className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                     <p>Aucune transcription disponible</p>
@@ -1050,7 +1057,6 @@ export default function EpisodeDetailPage() {
           </div>
         </main>
       </div>
-              </SubscriptionGuard>
     </ProtectedRoute>
   )
 }

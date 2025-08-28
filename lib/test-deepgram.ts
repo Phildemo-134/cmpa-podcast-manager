@@ -1,52 +1,63 @@
 import { deepgramService } from './deepgram'
 
-async function testDiarization() {
+export async function testDeepgramConfiguration() {
   try {
-    console.log('🧪 Test de la diarisation Deepgram...')
+    console.log('🔍 Test de la configuration Deepgram...')
     
-    // Test avec une URL audio (remplacez par une vraie URL de test)
-    const testAudioUrl = process.env.TEST_AUDIO_URL || 'https://example.com/test-audio.mp3'
+    // Vérifier que la clé API est configurée
+    const apiKey = process.env.DEEPGRAM_API_KEY
+    if (!apiKey) {
+      throw new Error('❌ DEEPGRAM_API_KEY n\'est pas définie')
+    }
     
-    console.log('📡 URL audio de test:', testAudioUrl)
+    if (apiKey === 'your_deepgram_api_key' || apiKey === '') {
+      throw new Error('❌ DEEPGRAM_API_KEY n\'est pas correctement configurée')
+    }
     
-    const result = await deepgramService.transcribeAudio(testAudioUrl, {
+    console.log('✅ Clé API Deepgram configurée')
+    console.log(`📝 Clé API: ${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}`)
+    
+    // Test de validation de la clé API
+    const isValid = await deepgramService.validateApiKey()
+    if (isValid) {
+      console.log('✅ Clé API Deepgram valide')
+    } else {
+      console.log('⚠️ Impossible de valider la clé API Deepgram')
+    }
+    
+    return true
+    
+  } catch (error) {
+    console.error('❌ Erreur lors du test de configuration Deepgram:', error)
+    return false
+  }
+}
+
+export async function testDeepgramTranscription(audioUrl: string) {
+  try {
+    console.log('🎵 Test de transcription Deepgram...')
+    console.log(`🔗 URL audio: ${audioUrl}`)
+    
+    const result = await deepgramService.transcribeAudio(audioUrl, {
       model: 'nova-2',
       language: 'fr',
       smart_format: true,
       punctuate: true,
       diarize: true,
       paragraphs: true,
-      utterances: true, // Important pour la diarisation
+      utterances: true
     })
     
-    console.log('✅ Transcription réussie !')
-    console.log('📝 Texte brut:', result.raw_text.substring(0, 200) + '...')
-    console.log('🎯 Nombre de timestamps:', result.timestamps.length)
+    console.log('✅ Transcription réussie!')
+    console.log(`📝 Texte brut: ${result.raw_text?.length || 0} caractères`)
+    console.log(`⏱️ Timestamps: ${result.timestamps?.length || 0} segments`)
+    console.log(`🎯 Confiance: ${result.confidence}`)
+    console.log(`🌍 Langue: ${result.language}`)
     
-    // Afficher les premiers timestamps avec speakers
-    console.log('\n🔊 Premiers timestamps avec speakers:')
-    result.timestamps.slice(0, 5).forEach((timestamp, index) => {
-      console.log(`${index + 1}. [${timestamp.start}s - ${timestamp.end}s] ${timestamp.speaker || 'Speaker inconnu'}: ${timestamp.text.substring(0, 100)}...`)
-    })
-    
-    // Vérifier la présence de speakers
-    const speakersWithText = result.timestamps.filter(t => t.speaker && t.text.trim())
-    console.log(`\n👥 Nombre de segments avec speakers identifiés: ${speakersWithText.length}`)
-    
-    if (speakersWithText.length > 0) {
-      console.log('🎉 La diarisation fonctionne correctement !')
-    } else {
-      console.log('⚠️  Aucun speaker identifié. Vérifiez la configuration.')
-    }
+    return result
     
   } catch (error) {
-    console.error('❌ Erreur lors du test:', error)
+    console.error('❌ Erreur lors du test de transcription:', error)
+    throw error
   }
 }
-
-// Exécuter le test si le fichier est appelé directement
-if (require.main === module) {
-  testDiarization()
-}
-
-export { testDiarization }

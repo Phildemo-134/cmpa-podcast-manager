@@ -13,6 +13,15 @@ const anthropic = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
+    // Vérifier la configuration Anthropic
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is required')
+    }
+
+    if (process.env.ANTHROPIC_API_KEY === 'your_anthropic_api_key' || process.env.ANTHROPIC_API_KEY === '') {
+      throw new Error('ANTHROPIC_API_KEY is not properly configured. Please set a valid API key.')
+    }
+
     const { episodeId } = await request.json()
 
     if (!episodeId) {
@@ -21,6 +30,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    console.log(`🎯 Génération de tweets pour l'épisode: ${episodeId}`)
 
     // Récupérer l'épisode et sa transcription
     const { data: episode, error: episodeError } = await supabase
@@ -58,6 +69,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log(`📝 Transcription trouvée, statut: ${transcription.processing_status}`)
+
     // Préparer le prompt pour Claude
     const prompt = `Tu es un expert en marketing digital et réseaux sociaux. Tu dois créer entre 10 et 15 tweets pour promouvoir un épisode de podcast.
 
@@ -65,7 +78,7 @@ export async function POST(request: NextRequest) {
 DESCRIPTION: ${episode.description || 'Aucune description disponible'}
 
 TRANSCRIPTION:
-${transcription.transcript}
+${transcription.raw_text || transcription.cleaned_text || 'Aucune transcription disponible'}
 
 INSTRUCTIONS:
 1. Crée entre 10 et 15 tweets maximum
@@ -88,6 +101,8 @@ Retourne uniquement un tableau JSON avec cette structure:
 
 Assure-toi que le JSON soit valide et que chaque tweet respecte la limite de caractères.`
 
+    console.log(`🤖 Appel de Claude avec le prompt...`)
+
     // Appeler Claude
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
@@ -100,10 +115,14 @@ Assure-toi que le JSON soit valide et que chaque tweet respecte la limite de car
       ]
     })
 
+    console.log(`✅ Réponse reçue de Claude`)
+
     const content = response.content[0]
     if (content.type !== 'text') {
-      throw new Error('Réponse invalide de Claude')
+      throw new Error('Réponse invalide de Claude: type non-text')
     }
+
+    console.log(`📄 Réponse brute de Claude:`, content.text.substring(0, 500) + '...')
 
     // Parser la réponse JSON
     let tweets
@@ -111,24 +130,31 @@ Assure-toi que le JSON soit valide et que chaque tweet respecte la limite de car
       // Extraire le JSON de la réponse
       const jsonMatch = content.text.match(/\[[\s\S]*\]/)
       if (!jsonMatch) {
-        throw new Error('Format de réponse invalide')
+        console.error('❌ Aucun JSON trouvé dans la réponse')
+        console.error('Réponse complète:', content.text)
+        throw new Error('Format de réponse invalide: aucun JSON trouvé')
       }
       
-      tweets = JSON.parse(jsonMatch[0])
+      const jsonString = jsonMatch[0]
+      console.log(`🔍 JSON extrait:`, jsonString.substring(0, 300) + '...')
+      
+      tweets = JSON.parse(jsonString)
       
       // Validation des tweets
       if (!Array.isArray(tweets)) {
-        throw new Error('Format de tweets invalide')
+        throw new Error('Format de tweets invalide: pas un tableau')
       }
 
-      tweets = tweets.map(tweet => {
+      console.log(`✅ ${tweets.length} tweets parsés avec succès`)
+
+      tweets = tweets.map((tweet, index) => {
         if (!tweet.content || !tweet.hashtags) {
-          throw new Error('Structure de tweet invalide')
+          throw new Error(`Tweet ${index + 1}: structure invalide (content ou hashtags manquants)`)
         }
         
         // Vérifier la limite de caractères
         if (tweet.content.length > 200) {
-          throw new Error(`Tweet trop long: ${tweet.content.length} caractères`)
+          throw new Error(`Tweet ${index + 1} trop long: ${tweet.content.length} caractères`)
         }
         
         return {
@@ -137,16 +163,18 @@ Assure-toi que le JSON soit valide et que chaque tweet respecte la limite de car
         }
       })
 
+      console.log(`✅ Validation des tweets terminée`)
+
     } catch (parseError) {
-      console.error('Erreur de parsing:', parseError)
+      console.error('❌ Erreur de parsing:', parseError)
       console.error('Réponse brute de Claude:', content.text)
-      throw new Error('Erreur lors du parsing de la réponse')
+      throw new Error(`Erreur lors du parsing de la réponse: ${parseError instanceof Error ? parseError.message : 'Erreur inconnue'}`)
     }
 
     return NextResponse.json({ tweets })
 
   } catch (error) {
-    console.error('Erreur lors de la génération des tweets:', error)
+    console.error('❌ Erreur lors de la génération des tweets:', error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Erreur lors de la génération des tweets' },
       { status: 500 }

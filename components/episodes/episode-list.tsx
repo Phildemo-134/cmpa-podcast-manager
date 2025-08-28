@@ -27,9 +27,12 @@ const supabase = createClient(
 
 const statusConfig = {
   draft: { label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-50', icon: Clock },
-  uploading: { label: 'Upload en cours', color: 'text-blue-600', bg: 'bg-blue-50', icon: Upload },
+  uploaded: { label: 'Uploadé', color: 'text-blue-600', bg: 'bg-blue-50', icon: Upload },
   transcribing: { label: 'Transcription', color: 'text-yellow-600', bg: 'bg-yellow-50', icon: FileAudio },
-  processing: { label: 'Traitement IA', color: 'text-purple-600', bg: 'bg-purple-50', icon: Loader2 },
+  transcribed: { label: 'Transcrit', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
+  optimizing: { label: 'Optimisation', color: 'text-purple-600', bg: 'bg-purple-50', icon: Loader2 },
+  optimized: { label: 'Optimisé', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
+  generating_content: { label: 'Génération contenu', color: 'text-purple-600', bg: 'bg-purple-50', icon: Loader2 },
   completed: { label: 'Terminé', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
   published: { label: 'Publié', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle },
   failed: { label: 'Échec', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle },

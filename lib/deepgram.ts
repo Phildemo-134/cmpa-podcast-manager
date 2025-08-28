@@ -32,6 +32,10 @@ export class DeepgramService {
       throw new Error('DEEPGRAM_API_KEY environment variable is required')
     }
     
+    if (apiKey === 'your_deepgram_api_key' || apiKey === '') {
+      throw new Error('DEEPGRAM_API_KEY is not properly configured. Please set a valid API key.')
+    }
+    
     this.client = createClient(apiKey)
   }
 
@@ -43,6 +47,17 @@ export class DeepgramService {
     options: TranscriptionOptions = {}
   ): Promise<TranscriptionResult> {
     try {
+      // Vérifier que l'URL audio est valide
+      if (!audioUrl || audioUrl.trim() === '') {
+        throw new Error('URL audio invalide ou manquante')
+      }
+
+      if (!audioUrl.startsWith('http')) {
+        throw new Error('URL audio doit être une URL HTTP valide')
+      }
+
+      console.log(`Début de la transcription Deepgram pour l'URL: ${audioUrl}`)
+
       const {
         model = 'nova-2',
         language = 'fr',
@@ -52,6 +67,8 @@ export class DeepgramService {
         paragraphs = true,
         utterances = true, // Nécessaire pour la diarisation
       } = options
+
+      console.log(`Options de transcription:`, { model, language, smart_format, punctuate, diarize, paragraphs, utterances })
 
       const { result, error } = await this.client.listen.prerecorded.transcribeUrl(
         { url: audioUrl },
@@ -67,12 +84,15 @@ export class DeepgramService {
       )
 
       if (error) {
-        throw new Error(`Deepgram transcription error: ${error.message}`)
+        console.error('Erreur Deepgram API:', error)
+        throw new Error(`Erreur Deepgram API: ${error.message}`)
       }
 
       if (!result) {
-        throw new Error('No transcription result received from Deepgram')
+        throw new Error('Aucun résultat de transcription reçu de Deepgram')
       }
+
+      console.log(`Transcription Deepgram réussie pour l'URL: ${audioUrl}`)
 
       // Extraire le texte brut et les paragraphes
       const rawText = result.results?.channels?.[0]?.alternatives?.[0]?.transcript || ''

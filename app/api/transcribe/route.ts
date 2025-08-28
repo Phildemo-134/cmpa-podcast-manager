@@ -74,17 +74,21 @@ export async function POST(request: NextRequest) {
 
     // Effectuer la transcription avec Deepgram
     if (process.env.NODE_ENV === 'development') {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Début de la transcription pour l'épisode ${episodeId}`);
-      }
-      if (process.env.NODE_ENV === 'development') {
-        if (process.env.NODE_ENV === 'development') {
-        console.log(`URL audio: ${episode.audio_file_url}`);
-      }
-      }
+      console.log(`Début de la transcription pour l'épisode ${episodeId}`);
+      console.log(`URL audio: ${episode.audio_file_url}`);
+      console.log(`Taille du fichier: ${episode.file_size} bytes`);
     }
     
     try {
+      // Vérifier que l'URL audio est valide
+      if (!episode.audio_file_url || episode.audio_file_url.trim() === '') {
+        throw new Error('URL audio manquante ou invalide')
+      }
+
+      if (!episode.audio_file_url.startsWith('http')) {
+        throw new Error('URL audio doit être une URL HTTP valide')
+      }
+
       // Effectuer la transcription
       const transcriptionResult = await deepgramService.transcribeAudio(
         episode.audio_file_url,
@@ -97,6 +101,14 @@ export async function POST(request: NextRequest) {
           utterances: true // Désactivé car peut ne pas être disponible dans tous les plans
         }
       )
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Résultat de la transcription:', {
+          rawTextLength: transcriptionResult.raw_text?.length || 0,
+          timestampsCount: transcriptionResult.timestamps?.length || 0,
+          confidence: transcriptionResult.confidence
+        });
+      }
       
       // Mettre à jour la transcription avec le résultat
       const { error: updateTranscriptionError } = await supabase

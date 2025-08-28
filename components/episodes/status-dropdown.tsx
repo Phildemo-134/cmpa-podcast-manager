@@ -6,16 +6,19 @@ import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 
 interface StatusDropdownProps {
-  currentStatus: 'draft' | 'processing' | 'published' | 'failed' | 'uploading' | 'transcribing' | 'completed' | 'error'
-  onStatusChange: (newStatus: 'draft' | 'processing' | 'published' | 'failed' | 'uploading' | 'transcribing' | 'completed' | 'error') => Promise<void>
+  currentStatus: 'draft' | 'uploaded' | 'transcribing' | 'transcribed' | 'optimizing' | 'optimized' | 'generating_content' | 'completed' | 'published' | 'failed' | 'error'
+  onStatusChange: (newStatus: 'draft' | 'uploaded' | 'transcribing' | 'transcribed' | 'optimizing' | 'optimized' | 'generating_content' | 'completed' | 'published' | 'failed' | 'error') => Promise<void>
   isUpdating?: boolean
 }
 
 const statusOptions = [
   { value: 'draft', label: 'Brouillon', color: 'text-gray-600', bg: 'bg-gray-50' },
-  { value: 'uploading', label: 'Upload en cours', color: 'text-blue-600', bg: 'bg-blue-50' },
+  { value: 'uploaded', label: 'Uploadé', color: 'text-blue-600', bg: 'bg-blue-50' },
   { value: 'transcribing', label: 'Transcription', color: 'text-yellow-600', bg: 'bg-yellow-50' },
-  { value: 'processing', label: 'Traitement IA', color: 'text-purple-600', bg: 'bg-purple-50' },
+  { value: 'transcribed', label: 'Transcrit', color: 'text-green-600', bg: 'bg-green-50' },
+  { value: 'optimizing', label: 'Optimisation', color: 'text-purple-600', bg: 'bg-purple-50' },
+  { value: 'optimized', label: 'Optimisé', color: 'text-green-600', bg: 'bg-green-50' },
+  { value: 'generating_content', label: 'Génération contenu', color: 'text-purple-600', bg: 'bg-purple-50' },
   { value: 'completed', label: 'Terminé', color: 'text-green-600', bg: 'bg-green-50' },
   { value: 'published', label: 'Publié', color: 'text-green-600', bg: 'bg-green-50' },
   { value: 'failed', label: 'Échec', color: 'text-red-600', bg: 'bg-red-50' },
@@ -28,7 +31,7 @@ export function StatusDropdown({ currentStatus, onStatusChange, isUpdating = fal
 
   const currentStatusConfig = statusOptions.find(option => option.value === currentStatus)
 
-  const handleStatusSelect = async (newStatus: 'draft' | 'processing' | 'published' | 'failed' | 'uploading' | 'transcribing' | 'completed' | 'error') => {
+  const handleStatusSelect = async (newStatus: 'draft' | 'uploaded' | 'transcribing' | 'transcribed' | 'optimizing' | 'optimized' | 'generating_content' | 'completed' | 'published' | 'failed' | 'error') => {
     setSelectedStatus(newStatus)
     setIsOpen(false)
     
