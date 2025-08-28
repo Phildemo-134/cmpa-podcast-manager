@@ -4,3 +4,4 @@ export { PremiumGuard } from './premium-guard';
 export { SubscriptionNotification } from './subscription-notification';
 export { SubscriptionBadge } from './subscription-badge';
 export { SubscriptionCTA } from './subscription-cta';
+export { SubscriptionCheck } from './subscription-check';

@@ -9,6 +9,8 @@ import { Header } from '../../components/ui/header'
 import { useSupabaseAuth } from '../../hooks/use-supabase-auth'
 import { convertUTCToLocal, formatDateForDisplay } from '../../lib/utils'
 import { Database } from '../../types/database'
+import { ProtectedRoute } from '../../components/auth/protected-route'
+import { SubscriptionCheck } from '../../components/subscription'
 
 // Type pour les tweets planifiés basé sur la base de données
 type ScheduledTweet = Database['public']['Tables']['scheduled_tweets']['Row']
@@ -188,7 +190,9 @@ export default function ScheduleTweetPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <ProtectedRoute>
+      <SubscriptionCheck>
+        <div className="min-h-screen bg-gray-50">
       <Header currentPage="schedule-tweet" />
 
       {/* Main Content */}
@@ -367,5 +371,7 @@ export default function ScheduleTweetPage() {
         )}
       </main>
     </div>
+    </SubscriptionCheck>
+    </ProtectedRoute>
   )
 }
