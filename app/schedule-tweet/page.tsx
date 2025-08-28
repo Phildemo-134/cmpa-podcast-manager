@@ -195,8 +195,7 @@ export default function ScheduleTweetPage() {
 
   return (
     <ProtectedRoute>
-      <SubscriptionToastGuard>
-        <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50">
       <Header currentPage="schedule-tweet" />
 
       {/* Main Content */}
@@ -375,7 +374,6 @@ export default function ScheduleTweetPage() {
         )}
       </main>
     </div>
-    </SubscriptionToastGuard>
     </ProtectedRoute>
   )
 }

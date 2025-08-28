@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { useSupabaseAuth } from '../../hooks/use-supabase-auth'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,6 +22,24 @@ export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const { user } = useSupabaseAuth()
+
+  // ✅ Rediriger si l'utilisateur est déjà connecté (dans useEffect)
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard')
+    }
+  }, [user, router])
+
+  // ✅ Ne pas faire de redirection dans le rendu
+  if (user) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600">Redirection...</span>
+      </div>
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -75,8 +94,8 @@ export function AuthForm() {
 
         if (error) throw error
 
-        router.push('/dashboard')
-        router.refresh()
+        // ✅ La redirection sera gérée automatiquement par le hook useSupabaseAuth
+        // Pas besoin de router.push ici
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Une erreur est survenue')
