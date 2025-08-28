@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 // Configuration Twitter OAuth2
-const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID
+const TWITTER_CLIENT_ID = process.env.NEXT_PUBLIC_TWITTER_CLIENT_ID || process.env.TWITTER_CLIENT_ID
 const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET
-const TWITTER_REDIRECT_URI = process.env.NEXT_PUBLIC_TWITTER_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/twitter/callback`
+const TWITTER_REDIRECT_URI = process.env.NEXT_PUBLIC_APP_URL 
+  ? `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/twitter/callback`
+  : `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/twitter/callback`
 
 // Configuration Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -30,7 +32,11 @@ export async function GET(request: NextRequest) {
 
     // Vérifier que les variables d'environnement sont configurées
     if (!TWITTER_CLIENT_ID || !TWITTER_CLIENT_SECRET) {
-      console.error('Configuration Twitter manquante')
+      console.error('Configuration Twitter manquante:', { 
+        clientId: !!TWITTER_CLIENT_ID, 
+        clientSecret: !!TWITTER_CLIENT_SECRET,
+        redirectUri: TWITTER_REDIRECT_URI 
+      })
       return NextResponse.redirect(new URL('/settings?error=config_missing', request.url))
     }
 
@@ -69,14 +75,15 @@ export async function GET(request: NextRequest) {
         code_verifier: stateData.code_verifier || ''
       })
     })
-    if (process.env.NODE_ENV === 'development') {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('tokenResponse', tokenResponse);
-      }
-    }
+
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
-      console.error('Erreur lors de l\'échange du token:', errorText)
+      console.error('Erreur lors de l\'échange du token:', {
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        error: errorText,
+        redirectUri: TWITTER_REDIRECT_URI
+      })
       return NextResponse.redirect(new URL('/settings?error=token_exchange_failed', request.url))
     }
   
